@@ -1,0 +1,17 @@
+/* src/features/auth/AuthPage.css */
+
+.auth-page {
+  background: linear-gradient(135deg, #6c5ce7, #00b894);
+}
+
+.auth-page .card {
+  background: #ffffffcc; /* شفاف جزئي */
+}
+
+.auth-page input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+}
+
+.auth-page button {
+  font-size: 1rem;
+}
