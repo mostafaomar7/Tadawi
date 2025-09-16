@@ -1,13 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 300;
+  font-style: normal;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+body{
+  text-transform: capitalize;
+}
+/* للمتصفح كروم، إيدج، سفاري */
+::-webkit-scrollbar {
+  width: 6px; /* سمك السكروول */
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0; /* لون المسار */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #3b82f6; /* اللون الأزرق */
+  border-radius: 10px;
+  border: 1px solid #f0f0f0; /* optional للحدود */
+}
+
+/* للـ Firefox */
+* {
+  scrollbar-width: thin; /* رفيع */
+  scrollbar-color: #3b82f6 #f0f0f0; /* thumb color و track color */
 }
