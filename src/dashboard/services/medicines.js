@@ -1,0 +1,42 @@
+import api from './api';
+
+// Medicines API Services
+export const medicinesService = {
+  // Get all medicines
+  getMedicines: async (params = {}) => {
+    const response = await api.get('/dashboard/medicines', { params });
+    return response.data;
+  },
+
+
+  // Get single medicine
+  getMedicine: async (id) => {
+    const response = await api.get(`/dashboard/medicines/${id}`);
+    return response.data;
+  },
+
+  // Create new medicine
+  createMedicine: async (data) => {
+    const response = await api.post('/dashboard/medicines', data);
+    return response.data;
+  },
+
+  // Update medicine
+  updateMedicine: async (id, data) => {
+    const response = await api.put(`/dashboard/medicines/${id}`, data);
+    return response.data;
+  },
+
+  // Delete medicine
+  deleteMedicine: async (id) => {
+    const response = await api.delete(`/dashboard/medicines/${id}`);
+    return response.data;
+  },
+
+  // Restore medicine
+  restoreMedicine: async (id) => {
+    const response = await api.post(`/dashboard/medicines/${id}/restore`);
+    return response.data;
+  },
+
+};
