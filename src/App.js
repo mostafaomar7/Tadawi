@@ -5,6 +5,7 @@ import AuthPage from "./components/Home/Auth/AuthPage";
 import Home from './components/Home/Home/Home';
 import Patient from './components/Home/Patient/Patint';
 import SecurityNotice from './components/Home/SecurityNotice';
+import Profile from "./components/Home/Profile/Profile";
 
 function App() {
   const location = useLocation();
@@ -18,6 +19,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/profile" element={<Profile />} />
 
           {/* صفحات محمية */}
           <Route

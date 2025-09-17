@@ -18,6 +18,7 @@ export default function Navbar() {
     console.log("🔴 Logout clicked");
     localStorage.removeItem("authToken");
     localStorage.removeItem("authUser");
+    localStorage.removeItem("authRole");
     navigate("/auth");
   };
 

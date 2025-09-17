@@ -1,0 +1,222 @@
+/* src/features/profile/Profile.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+  --primary-color: #0d6efd;
+  --success-color: #198754;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e9ecef;
+  --dark-gray: #6c757d;
+  --text-color: #212529;
+  --card-bg: #ffffff;
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+  --border-radius: 1rem;
+}
+
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  background-color: var(--light-gray);
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+.profile-card {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  width: 100%;
+  max-width: 700px;
+  padding: 2.5rem;
+  border: 1px solid var(--medium-gray);
+}
+
+.profile-feedback {
+  text-align: center;
+  margin-top: 5rem;
+  font-size: 1.2rem;
+  color: var(--dark-gray);
+}
+
+.profile-feedback.error {
+  color: var(--danger-color);
+  font-weight: 600;
+}
+
+/* Header */
+.profile-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--primary-color);
+  margin: 0 auto 1rem;
+  box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+}
+
+.profile-initials-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 0 auto 1rem;
+  border: 4px solid var(--primary-color);
+}
+
+.profile-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.profile-email {
+  font-size: 1rem;
+  color: var(--dark-gray);
+  margin: 0;
+}
+
+.profile-divider {
+  border: 0;
+  border-top: 1px solid var(--medium-gray);
+  margin: 2rem 0;
+}
+
+/* Details Grid */
+.profile-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.detail-icon {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.detail-icon.verified { color: var(--success-color); }
+.detail-icon.not-verified { color: var(--danger-color); }
+
+.detail-label {
+  font-size: 0.85rem;
+  color: var(--dark-gray);
+  display: block;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+/* Badges */
+.badge {
+  padding: 0.3em 0.7em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 20px;
+  text-transform: capitalize;
+}
+.badge.role-patient { background-color: #e0f2fe; color: #0ea5e9; }
+.badge.role-admin { background-color: #fee2e2; color: #ef4444; }
+.badge.status-active { background-color: #dcfce7; color: #22c55e; }
+.badge.status-inactive { background-color: #f3f4f6; color: #6b7280; }
+
+/* Actions */
+.profile-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.action-label {
+  flex-grow: 1;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--medium-gray);
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+input:checked + .slider {
+  background-color: var(--success-color);
+}
+
+input:disabled + .slider {
+  cursor: not-allowed;
+  background-color: #ccc;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profile-card {
+    padding: 2rem;
+  }
+  .profile-details {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}

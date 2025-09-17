@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./AuthPage.css";
-
+import { BASE_URL } from "../../../config";
 export default function AuthPage() {
   const [mode, setMode] = useState("login");
   const navigate = useNavigate();
@@ -79,7 +79,7 @@ export default function AuthPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/auth/register", {
+      const res = await fetch(`${BASE_URL}auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
@@ -115,7 +115,7 @@ export default function AuthPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/auth/verify-otp", {
+      const res = await fetch(`${BASE_URL}auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
@@ -140,7 +140,7 @@ export default function AuthPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/auth/resend-otp", {
+      const res = await fetch(`${BASE_URL}auth/resend-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -165,7 +165,7 @@ export default function AuthPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/auth/login", {
+      const res = await fetch(`${BASE_URL}auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -196,7 +196,7 @@ export default function AuthPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/auth/send-password-reset-otp", {
+      const res = await fetch(`${BASE_URL}auth/send-password-reset-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -220,7 +220,7 @@ export default function AuthPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/auth/reset-password", {
+      const res = await fetch(`${BASE_URL}auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -251,7 +251,7 @@ export default function AuthPage() {
     const token = localStorage.getItem("authToken");
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/v1/auth/update-role", {
+      const res = await fetch(`${BASE_URL}auth/update-role`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -8,7 +8,9 @@ body {
   font-weight: 300;
   font-style: normal;
 }
-
+body {
+  overflow-x: hidden;
+}
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;

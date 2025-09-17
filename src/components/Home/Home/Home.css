@@ -1,3 +1,26 @@
+/* src/components/Home/Home.css */
+
+/* Hero Section Background */
+.hero-section {
+  position: relative;
+}
+
+.hero-background{
+     background: linear-gradient(135deg, #56CCF2, #2F80ED);
+}
+/* Make Feature Card links fill the card */
+.feature-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
+/* Call to Action Section Gradient Background */
+.cta-section {
+  background: linear-gradient(45deg, #14b8a6, #0891b2); /* Teal to Cyan gradient */
+}
+
 link{
     text-decoration: none;
     cursor: pointer;
@@ -7,7 +30,6 @@ button{
 }
 .hero{
  background: linear-gradient(239deg, #53a2ed 0%, #2581d9 100%);
-    background-image: url(../../../../public/hero-background);
     background-size: cover;
     background-position: 100%;
 } 
@@ -26,6 +48,11 @@ button{
     font-size: 14px;
     text-align: center;
     white-space: nowrap;
+    color: black;
+    transition: .5s;
+}
+.contact{
+    color: #fff;
 }
 .services{
         display: inline-block;
@@ -37,6 +64,10 @@ button{
     font-size: 14px;
     text-align: center;
     white-space: nowrap;
+    background : #1370c7;
+    color: #fff;
+    border: 1px solid #1370c7;
+    transition: .5s;
 }
 input{
     outline: none;
