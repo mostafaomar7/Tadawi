@@ -27,58 +27,16 @@ function getUserLocation() {
   });
 }
 
-const Search = () => {
+const AlternativeSearch = () => {
   const token = localStorage.getItem("authToken");
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const [aiResults, setAiResults] = useState([]);
   const [aiUnavailable, setAiUnavailable] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
-
-  const [searched, setSearched] = useState(false);
   const [aiRequested, setAiRequested] = useState(false);
 
   const userDrugs = ["Metformin"];
-
-  const handleSearch = async () => {
-    if (!query.trim()) return;
-
-    setLoading(true);
-    setError(null);
-    setResults([]);
-    setAiResults([]);
-    setAiUnavailable([]);
-    setAiError(null);
-    setSearched(true);
-
-    try {
-      const { lat, lng } = await getUserLocation();
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/search?name=${encodeURIComponent(
-          query
-        )}&lat=${lat}&lng=${lng}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("No results found ,enter valid search");
-
-      const data = await response.json();
-      setResults(data.matches || []);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleAISearch = async () => {
     if (!query.trim()) {
@@ -91,7 +49,8 @@ const Search = () => {
     setAiError(null);
     setAiResults([]);
     setAiUnavailable([]);
-    setAiRequested(true); // Track that AI button was clicked
+    setAiRequested(true);
+
     try {
       const { lat, lng } = await getUserLocation();
       const body = {
@@ -100,8 +59,7 @@ const Search = () => {
         lng,
         user_drugs: userDrugs,
       };
-      // Debug log
-      console.log("AI search body:", body);
+
       const response = await fetch(
         "http://127.0.0.1:8000/api/v1/search/with-alternatives",
         {
@@ -114,38 +72,31 @@ const Search = () => {
           body: JSON.stringify(body),
         }
       );
-      // Debug log
-      console.log("AI search response status:", response.status);
+
       if (!response.ok) throw new Error("Failed to fetch AI alternatives");
+
       const data = await response.json();
-      // Debug log
-      console.log("AI search response data:", data);
       setAiResults(data.results || []);
       setAiUnavailable(data.unavailable || []);
     } catch (err) {
       setAiError(err.message);
-      // Debug log
       console.error("AI search error:", err);
     } finally {
       setAiLoading(false);
     }
   };
 
-  const renderMedicineCard = (item, isAI = false) => (
+  const renderMedicineCard = (item) => (
     <div
       key={item.pharmacy_id}
       className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition"
     >
       <div className="flex items-center mb-3">
-        <Pill
-          className={`mr-2 ${isAI ? "text-yellow-500" : "text-blue-500"}`}
-        />
+        <Pill className="mr-2 text-blue-500" />
         <h3 className="font-semibold text-lg">{item.medicine_name}</h3>
-        {isAI && (
-          <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">
-            AI Alternative
-          </span>
-        )}
+        <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+          AI Alternative
+        </span>
       </div>
       <div className="space-y-2 text-gray-700">
         <p className="flex items-center">
@@ -189,10 +140,10 @@ const Search = () => {
       {/* Header */}
       <header className="mb-8 text-center">
         <h1 className="text-3xl font-bold text-blue-600 mb-2">
-          Medicine Search
+          Alternative Medicine Search
         </h1>
         <p className="text-gray-600">
-          Find pharmacies near you that have your medicine in stock
+          Find AI-suggested alternatives for your medicine
         </p>
       </header>
 
@@ -208,50 +159,25 @@ const Search = () => {
         />
         <button
           style={{ border: "1px solid #fff" }}
-          onClick={handleSearch}
+          onClick={handleAISearch}
           className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
         >
-          Search
+          Search Alternatives
         </button>
       </div>
 
-      {/* Status */}
-      {loading && <p className="text-center text-gray-500">Searching...</p>}
-      {error && <p className="text-center text-red-500">{error}</p>}
-
-      {/* DB Results */}
-      {results.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {results.map((item) => renderMedicineCard(item))}
-        </div>
-      )}
-
-      {/* AI button: only show after first search */}
-      {searched && !aiLoading && (
-        <div className="text-center mt-6">
-          <button
-            onClick={handleAISearch}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-            style={{ border: "1px solid #fff" }}
-            disabled={!query.trim()}
-          >
-            Search for alternatives by AI
-          </button>
-        </div>
-      )}
-
       {/* AI Loading & Error */}
       {aiLoading && (
-        <p className="text-center text-gray-500 mt-4">
-          Searching for alternatives by AI...
+        <p className="text-center text-gray-500">
+          Searching for alternatives...
         </p>
       )}
-      {aiError && <p className="text-center text-red-500 mt-4">{aiError}</p>}
+      {aiError && <p className="text-center text-red-500">{aiError}</p>}
 
       {/* Alternatives Title */}
       {(aiResults.length > 0 || aiUnavailable.length > 0) && (
         <div className="max-w-xl mx-auto mt-10 mb-4 text-center">
-          <h2 className="text-2xl font-bold text-yellow-700 mb-2">
+          <h2 className="text-2xl font-bold text-blue-700 mb-2">
             AI Suggested Alternatives
           </h2>
           <p className="text-gray-600">
@@ -264,7 +190,7 @@ const Search = () => {
       {/* AI Results */}
       {aiResults.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {aiResults.map((item) => renderMedicineCard(item, true))}
+          {aiResults.map((item) => renderMedicineCard(item))}
         </div>
       )}
 
@@ -275,7 +201,7 @@ const Search = () => {
         </div>
       )}
 
-      {/* Friendly message if AI found nothing (only after AI button click) */}
+      {/* No results case */}
       {aiRequested &&
         !aiLoading &&
         aiResults.length === 0 &&
@@ -286,20 +212,8 @@ const Search = () => {
             </p>
           </div>
         )}
-
-      {/* No DB results case */}
-      {searched &&
-        results.length === 0 &&
-        !loading &&
-        !aiLoading &&
-        aiResults.length === 0 &&
-        aiUnavailable.length === 0 && (
-          <div className="text-center mt-10">
-            <p className="text-gray-500 mb-4">No results found.</p>
-          </div>
-        )}
     </div>
   );
 };
 
-export default Search;
+export default AlternativeSearch;
