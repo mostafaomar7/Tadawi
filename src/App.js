@@ -8,6 +8,10 @@ import SecurityNotice from "./components/Home/SecurityNotice";
 import Profile from "./components/Home/Profile/Profile";
 import Search from "./components/Home/PharmacySearch/Search";
 import AddDonation from "./components/Home/Donations/AddDontation";
+
+import DonateList from "./components/Home/Donations/DonateList";
+import AllPharamacy from "./components/Home/AllPharamacy/AllPharamacy"
+import MyDonation from "./components/Home/Donations/MyDonation";
 import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSearch";
 
 function App() {
@@ -22,7 +26,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<AuthPage />} />
+
+         
           <Route path="/add-dontation" element={<AddDonation />} />
+
 
           {/* صفحات محمية */}
           <Route
@@ -33,7 +40,38 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/Pharmacy"
+            element={
+              <ProtectedRoute>
+                <AllPharamacy />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/add-dontation"
+            element={
+              <ProtectedRoute>
+                <AddDonation />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/donate"
+            element={
+              <ProtectedRoute>
+                <DonateList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/Mydonate"
+            element={
+              <ProtectedRoute>
+                <MyDonation />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/pharasearch"
             element={
