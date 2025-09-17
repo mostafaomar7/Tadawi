@@ -56,7 +56,7 @@ const Search = () => {
     try {
       const { lat, lng } = await getUserLocation();
       const response = await fetch(
-        `http://127.0.0.1:8000/api/search?name=${encodeURIComponent(
+        `http://127.0.0.1:8000/api/v1/search?name=${encodeURIComponent(
           query
         )}&lat=${lat}&lng=${lng}`
       );
@@ -94,7 +94,7 @@ const Search = () => {
       // Debug log
       console.log("AI search body:", body);
       const response = await fetch(
-        "http://127.0.0.1:8000/api/search/with-alternatives",
+        "http://127.0.0.1:8000/api/v1/search/with-alternatives",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

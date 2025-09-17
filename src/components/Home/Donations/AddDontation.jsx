@@ -277,7 +277,21 @@ const AddDonation = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-xl rounded-2xl">
+    <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-xl rounded-2xl relative">
+       <div className="text-center absolute top-4 right-1">
+    <a
+    style={{textDecoration:"none",
+      padding :"8px",
+            fontSize :"20px",
+            width : "180px"
+    }}
+      href="/mydonate"
+      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+    >
+      MyDonate
+    </a>
+  </div>
+
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800">Add New Donation</h2>
         <p className="text-gray-500 mt-2">Fill in the form below to contribute medicines.</p>

@@ -71,16 +71,16 @@ export default function Navbar() {
           `}
         >
           <Link
-            to="/add-dontation"
+            to="/donate"
             className="block text-blue-600 hover:text-blue-800 no-underline"
           >
             Donate
           </Link>
           <Link
-            to="/upload-prescription"
+            to="/Pharmacy"
             className="block text-blue-600 hover:text-blue-800 no-underline"
           >
-            Upload Prescription
+            Pharmacy
           </Link>
 
           {!token ? (
