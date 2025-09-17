@@ -71,7 +71,7 @@ export default function Navbar() {
           `}
         >
           <Link
-            to="/donate"
+            to="/add-dontation"
             className="block text-blue-600 hover:text-blue-800 no-underline"
           >
             Donate

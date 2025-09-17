@@ -8,6 +8,15 @@ import { PlusCircle, Trash2, UploadCloud, X, LoaderCircle, CheckCircle, AlertTri
 const MAX_MEDICINES = 5;
 const MAX_PHOTOS = 3;
 
+// Debounce helper for autocomplete
+const debounce = (fn, delay = 300) => {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+};
+
 const AlertMessage = ({ type, message, onDismiss }) => {
   const isError = type === "error";
   const config = {
@@ -29,7 +38,7 @@ const AlertMessage = ({ type, message, onDismiss }) => {
   );
 };
 
-const MedicineInputRow = ({ medicine, index, onChange, onRemove, error }) => (
+const MedicineInputRow = ({ medicine, index, onChange, onRemove, error, suggestions = [], onPickSuggestion }) => (
   <div className="p-3 border rounded-lg bg-gray-50/50 space-y-2">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
       {/* Medicine Name */}
@@ -42,6 +51,20 @@ const MedicineInputRow = ({ medicine, index, onChange, onRemove, error }) => (
           onChange={(e) => onChange(index, "medicine_name", e.target.value)}
           className={`w-full p-2 border rounded-md focus:ring-2 ${error?.medicine_name ? "border-red-500 ring-red-300" : "border-gray-300 focus:ring-blue-500"}`}
         />
+        {Array.isArray(suggestions) && suggestions.length > 0 && (
+          <div className="mt-2 border rounded-md bg-white shadow-sm max-h-56 overflow-auto">
+            {suggestions.map((sug) => (
+              <button
+                type="button"
+                key={sug.id}
+                className="w-full text-left px-3 py-2 hover:bg-gray-50"
+                onClick={() => onPickSuggestion && onPickSuggestion(index, sug)}
+              >
+                {(sug.display_text || sug.name)}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Quantity */}
@@ -148,22 +171,47 @@ const ImageUploader = ({ photos, setPhotos, maxFiles, error }) => {
 const AddDonation = () => {
   const [contactInfo, setContactInfo] = useState("");
   const [sealedConfirmed, setSealedConfirmed] = useState(false);
-  const [medicines, setMedicines] = useState([{ medicine_name: "", quantity: 1, expiry_date: "" }]);
+  const [medicines, setMedicines] = useState([{ medicine_id: null, medicine_name: "", quantity: 1, expiry_date: "" }]);
   const [photos, setPhotos] = useState([]);
 
   const [status, setStatus] = useState({ type: null, message: null });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // Suggestions per row index
+  const [suggestions, setSuggestions] = useState({});
+
+  const searchMedicines = debounce(async (query, rowIndex) => {
+    try {
+      if (!query || query.length < 2) {
+        setSuggestions((prev) => ({ ...prev, [rowIndex]: [] }));
+        return;
+      }
+      const token = localStorage.getItem("authToken");
+      const { data } = await axios.get(`${BASE_URL}medicines/search`, {
+        params: { q: query, limit: 8 },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const items = data?.data?.medicines || [];
+      setSuggestions((prev) => ({ ...prev, [rowIndex]: items }));
+    } catch (e) {
+      setSuggestions((prev) => ({ ...prev, [rowIndex]: [] }));
+    }
+  }, 300);
+
   const handleMedicineChange = (index, field, value) => {
     const updated = [...medicines];
     updated[index][field] = value;
+    if (field === "medicine_name") {
+      updated[index].medicine_id = null;
+      searchMedicines(value, index);
+    }
     setMedicines(updated);
   };
 
   const addMedicine = () => {
     if (medicines.length < MAX_MEDICINES) {
-      setMedicines([...medicines, { medicine_name: "", quantity: 1, expiry_date: "" }]);
+      setMedicines([...medicines, { medicine_id: null, medicine_name: "", quantity: 1, expiry_date: "" }]);
     }
   };
 
@@ -174,7 +222,7 @@ const AddDonation = () => {
   const clearForm = () => {
     setContactInfo("");
     setSealedConfirmed(false);
-    setMedicines([{ medicine_name: "", quantity: 1, expiry_date: "" }]);
+    setMedicines([{ medicine_id: null, medicine_name: "", quantity: 1, expiry_date: "" }]);
     setPhotos([]);
   };
 
@@ -264,6 +312,14 @@ const AddDonation = () => {
                 onChange={handleMedicineChange}
                 onRemove={medicines.length > 1 ? () => removeMedicine(idx) : null}
                 error={errors[`medicines.${idx}`]}
+                suggestions={suggestions[idx] || []}
+                onPickSuggestion={(rowIndex, sug) => {
+                  const updated = [...medicines];
+                  updated[rowIndex].medicine_name = sug.name || sug.display_text || "";
+                  updated[rowIndex].medicine_id = sug.id;
+                  setMedicines(updated);
+                  setSuggestions((prev) => ({ ...prev, [rowIndex]: [] }));
+                }}
               />
             ))}
           </div>
