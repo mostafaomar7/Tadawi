@@ -8,6 +8,7 @@ import SecurityNotice from "./components/Home/SecurityNotice";
 import Profile from "./components/Home/Profile/Profile";
 import Search from "./components/Home/PharmacySearch/Search";
 import AddDonation from "./components/Home/Donations/AddDontation";
+import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSearch";
 
 function App() {
   const location = useLocation();
@@ -19,11 +20,10 @@ function App() {
 
       <main className={`${!hideNavbar ? "pt-14 pb-14" : ""}`}>
         <Routes>
-          {/* صفحات عامة */}
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/add-dontation" element={<AddDonation />} />
-           
+
           {/* صفحات محمية */}
           <Route
             path="/profile"
@@ -44,6 +44,15 @@ function App() {
           />
 
           <Route
+            path="/alternative-search"
+            element={
+              <ProtectedRoute>
+                <AlternativeSearch />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/patient"
             element={
               <ProtectedRoute>
@@ -54,7 +63,6 @@ function App() {
         </Routes>
       </main>
 
-      {/* Security Notice يظهر في كل الصفحات إلا صفحة /auth */}
       {!hideNavbar && <SecurityNotice />}
     </div>
   );

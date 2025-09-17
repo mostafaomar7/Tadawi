@@ -25,10 +25,7 @@ export default function Navbar() {
   // ✅ يقفل المنيو لو دوست براها
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         console.log("🟡 Click outside -> closing menu");
         setProfileOpen(false);
       }
@@ -77,6 +74,12 @@ export default function Navbar() {
             Donate
           </Link>
           <Link
+            to="/pharmacies"
+            className="block text-blue-600 hover:text-blue-800 no-underline"
+          >
+            Pharmacies
+          </Link>
+          <Link
             to="/upload-prescription"
             className="block text-blue-600 hover:text-blue-800 no-underline"
           >
@@ -94,33 +97,33 @@ export default function Navbar() {
             <div className="relative" ref={dropdownRef}>
               {/* Profile Icon */}
               <button
-  onClick={() => {
-    console.log("👤 Profile icon clicked ->", !profileOpen);
-    setProfileOpen(!profileOpen);
-  }}
-  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none border-0"
->
-  <User className="w-7 h-7" />
-</button>
+                onClick={() => {
+                  console.log("👤 Profile icon clicked ->", !profileOpen);
+                  setProfileOpen(!profileOpen);
+                }}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none border-0"
+              >
+                <User className="w-7 h-7" />
+              </button>
               {/* Dropdown */}
               {/* Dropdown */}
-{profileOpen && (
-  <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl ring-1 ring-gray-200 z-50 overflow-hidden">
-    <Link
-      to="/profile"
-      className="flex items-center gap-3 px-4 py-3 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors no-underline"
-      onClick={() => setProfileOpen(false)}
-    >
-      View Profile
-    </Link>
-    <button
-      onClick={handleLogout}
-      className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors border-0 focus:outline-none"
-    >
-      Logout
-    </button>
-  </div>
-)}
+              {profileOpen && (
+                <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl ring-1 ring-gray-200 z-50 overflow-hidden">
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors no-underline"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    View Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors border-0 focus:outline-none"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
