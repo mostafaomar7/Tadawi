@@ -138,7 +138,7 @@ const FeaturesSection = () => {
       icon: <Search className="h-10 w-10" />,
       title: "Smart Drug Search",
       description: "Quickly locate any medication with real-time availability from pharmacies near you.",
-      path: "/drug-search",
+      path: "/pharasearch",
     },
   ];
 

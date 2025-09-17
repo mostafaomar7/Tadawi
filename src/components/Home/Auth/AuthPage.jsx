@@ -395,9 +395,25 @@ export default function AuthPage() {
             {selectedRole === "patient" && (
               <>
                 <input type="date" className="form-control mb-2" value={profileData.date_of_birth||""} onChange={(e)=>setProfileData({...profileData,date_of_birth:e.target.value})} required/>
-                <input className="form-control mb-2" placeholder="Gender" onChange={(e)=>setProfileData({...profileData,gender:e.target.value})} required/>
-                <input className="form-control mb-2" placeholder="National ID" onChange={(e)=>setProfileData({...profileData,national_id:e.target.value})} required/>
-                <textarea className="form-control mb-2" placeholder="Medical History" onChange={(e)=>setProfileData({...profileData,medical_history_summary:e.target.value})} required/>
+<select
+      name="gender"
+      className="form-control mb-2"
+      value={profileData.gender || ""}
+      onChange={(e) =>
+        setProfileData({ ...profileData, gender: e.target.value })
+      }
+      required
+      aria-label="Gender"
+    >
+      <option value="" disabled>
+        -- Select gender --
+      </option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+                    <input className="form-control mb-2" placeholder="National ID" onChange={(e)=>setProfileData({...profileData,national_id:e.target.value})} required/>
+                <label htmlFor="history" className="mb-1">If not applicable, Write "N/A</label>
+                <textarea name="history" className="form-control mb-2" placeholder="Medical History" onChange={(e)=>setProfileData({...profileData,medical_history_summary:e.target.value})} required/>
                 <input className="form-control mb-2" placeholder="Default Address" onChange={(e)=>setProfileData({...profileData,default_address:e.target.value})} required/>
               </>
             )}
