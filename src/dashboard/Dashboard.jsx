@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { DashboardProvider, useDashboardContext } from "./context/DashboardContext";
 import { ToastProvider, useToast } from "./hooks/useToast";
@@ -15,11 +15,21 @@ import Settings from "./pages/Settings/Settings";
 import ActiveIngredients from "./pages/ActiveIngredients/ActiveIngredients";
 import TherapeuticClasses from "./pages/TherapeuticClasses/TherapeuticClasses";
 import Reviews from "./pages/Reviews/Reviews";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './styles/dashboard.css';
 
 // Dashboard Layout Component
 function DashboardLayout({ children }) {
+  useEffect(() => {
+    const bootstrapLink = document.createElement("link");
+    bootstrapLink.rel = "stylesheet";
+    bootstrapLink.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
+    document.head.appendChild(bootstrapLink);
+
+    return () => {
+      bootstrapLink.remove(); // ينظف عند الخروج من الداشبورد
+    };
+  }, []);
+
+
   const { sidebarCollapsed } = useDashboardContext();
   const { toasts, removeToast } = useToast();
 

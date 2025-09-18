@@ -14,7 +14,6 @@ import AllPharamacy from "./components/Home/AllPharamacy/AllPharamacy";
 import MyDonation from "./components/Home/Donations/MyDonation";
 import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSearch";
 
-import { Routes, Route, useLocation } from "react-router-dom";
 import MainDashboard from "./dashboard/Dashboard";
 
 function App() {

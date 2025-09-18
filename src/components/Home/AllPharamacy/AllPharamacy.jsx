@@ -37,7 +37,16 @@ export default function AllPharmacy() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/v1/pharmacies")
+    // Get the auth token from localStorage
+    const authToken = localStorage.getItem("authToken");
+
+    // Set the Authorization header
+    const headers = {
+      "Authorization": `Bearer ${authToken}`,
+      "Content-Type": "application/json",
+    };
+
+    fetch("http://127.0.0.1:8000/api/v1/pharmacies", { headers })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch data from server");
         return res.json();
