@@ -7,6 +7,7 @@ import {
   FaCapsules 
 } from "react-icons/fa";
 import { BASE_URL } from "../../../config";
+import { useNavigate } from "react-router-dom"; 
 
 const SkeletonCard = () => (
   <div className="bg-white rounded-xl shadow-md p-6 animate-pulse">
@@ -26,8 +27,10 @@ export default function MyDonation() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    const token = localStorage.getItem("authToken"); // توكن المستخدم
+    const token = localStorage.getItem("authToken");
 
     fetch(`${BASE_URL}donations`, {
       method: "GET",
@@ -90,7 +93,11 @@ export default function MyDonation() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {donations.map((donation) => (
-          <div key={donation.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300">
+          <div 
+            key={donation.id} 
+            onClick={() => navigate(`/donations/${donation.id}`, { state: { fromMyDonation: true } })} // ✅
+            className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
+          >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-slate-800">{donation.location || "No location provided"}</h2>
               {donation.verified ? (

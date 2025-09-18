@@ -16,6 +16,7 @@ import MyDonation from "./components/Home/Donations/MyDonation";
 import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSearch";
 
 import MainDashboard from "./dashboard/Dashboard";
+import DonationDetails from "./components/Home/Donations/DonationDetails";
 
 function App() {
   const location = useLocation();
@@ -101,14 +102,21 @@ function App() {
           />
 
           <Route
-  path="/conflict-system"
-  element={
-    <ProtectedRoute>
-      <ConflictSystem />
-    </ProtectedRoute>
-  }
-/>
-    
+          path="/conflict-system"
+          element={
+            <ProtectedRoute>
+              <ConflictSystem />
+            </ProtectedRoute>
+          }
+        />
+    <Route
+          path="//donations/:id"
+          element={
+            <ProtectedRoute>
+              <DonationDetails />
+            </ProtectedRoute>
+          }
+        />
           <Route
             path="/dashboard/*"
             element={

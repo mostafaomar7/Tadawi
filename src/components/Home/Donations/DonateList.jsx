@@ -103,8 +103,11 @@ export default function DonateList() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {donations.map((donation) => (
-          <div key={donation.id} className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300">
-            <div className="flex justify-between items-center mb-4">
+<div 
+  key={donation.id} 
+  onClick={() => navigate(`/donations/${donation.id}`)} 
+  className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
+>            <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-slate-800">{donation.location}</h2>
               {donation.verified ? (
                 <div className="flex items-center bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
