@@ -101,12 +101,14 @@ function App() {
           />
 
           <Route
-            path="/conflict-system"
-            element={
-              <ProtectedRoute>
-                <ConflictSystem />
-
-
+  path="/conflict-system"
+  element={
+    <ProtectedRoute>
+      <ConflictSystem />
+    </ProtectedRoute>
+  }
+/>
+    
           <Route
             path="/dashboard/*"
             element={

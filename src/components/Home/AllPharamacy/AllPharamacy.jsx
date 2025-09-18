@@ -105,18 +105,28 @@ export default function AllPharmacy() {
             )}
           </div>
           <div className="space-y-2 text-slate-600">
-            <div className="flex items-center">
-              <FaPhoneAlt className="mr-3 h-4 w-4 text-slate-400" />
-              <span>{pharmacy.contact_info.split(",")[0].replace("Phone:", "").trim()}</span>
-            </div>
-            <div className="flex items-center">
-              <FaEnvelope className="mr-3 h-4 w-4 text-slate-400" />
-              <span>{pharmacy.contact_info.split(",")[1].replace("Email:", "").trim()}</span>
-            </div>
-            <div className="flex items-center">
-              <FaClock className="mr-3 h-4 w-4 text-slate-400" />
-              <span>{pharmacy.contact_info.split(",")[2].replace("Working Hours:", "").trim()}</span>
-            </div>
+            {(() => {
+              const contactInfo = pharmacy.contact_info?.split(",") || [];
+              const phone = contactInfo[0]?.replace("Phone:", "").trim() || "N/A";
+              const email = contactInfo[1]?.replace("Email:", "").trim() || "N/A";
+              const hours = contactInfo[2]?.replace("Working Hours:", "").trim() || "N/A";
+              return (
+                <>
+                  <div className="flex items-center">
+                    <FaPhoneAlt className="mr-3 h-4 w-4 text-slate-400" />
+                    <span>{phone}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <FaEnvelope className="mr-3 h-4 w-4 text-slate-400" />
+                    <span>{email}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <FaClock className="mr-3 h-4 w-4 text-slate-400" />
+                    <span>{hours}</span>
+                  </div>
+                </>
+              );
+            })()}
           </div>
           <div className="border-t border-slate-200 mt-5 pt-4 flex justify-between items-center">
             <div className="flex items-center">
