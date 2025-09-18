@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { DashboardProvider, useDashboardContext } from "./context/DashboardContext";
 import { ToastProvider, useToast } from "./hooks/useToast";
@@ -12,11 +12,24 @@ import Users from "./pages/Users/Users";
 import Prescriptions from "./pages/Prescriptions/Prescriptions";
 import Donations from "./pages/Donations/Donations";
 import Settings from "./pages/Settings/Settings";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './styles/dashboard.css';
+import ActiveIngredients from "./pages/ActiveIngredients/ActiveIngredients";
+import TherapeuticClasses from "./pages/TherapeuticClasses/TherapeuticClasses";
+import Reviews from "./pages/Reviews/Reviews";
 
 // Dashboard Layout Component
 function DashboardLayout({ children }) {
+  useEffect(() => {
+    const bootstrapLink = document.createElement("link");
+    bootstrapLink.rel = "stylesheet";
+    bootstrapLink.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css";
+    document.head.appendChild(bootstrapLink);
+
+    return () => {
+      bootstrapLink.remove(); // ينظف عند الخروج من الداشبورد
+    };
+  }, []);
+
+
   const { sidebarCollapsed } = useDashboardContext();
   const { toasts, removeToast } = useToast();
 
@@ -39,6 +52,9 @@ function DashboardLayout({ children }) {
             <Route path="/users" element={<Users />} />
             <Route path="/prescriptions" element={<Prescriptions />} />
             <Route path="/donations" element={<Donations />} />
+            <Route path="/active-ingredients" element={<ActiveIngredients />} />
+            <Route path="/therapeutic-classes" element={<TherapeuticClasses />} />
+            <Route path="/reviews" element={<Reviews />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </div>

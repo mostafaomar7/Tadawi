@@ -14,6 +14,12 @@ export const usersService = {
     return response.data;
   },
 
+  // Get users statistics
+  getUsersStats: async () => {
+    const response = await api.get('/dashboard/users/stats');
+    return response.data;
+  },
+
   // Get single user
   getUser: async (id) => {
     const response = await api.get(`/dashboard/users/${id}`);
@@ -44,5 +50,28 @@ export const usersService = {
     return response.data;
   },
 
+  // Get doctors
+  getDoctors: async (params = {}) => {
+    const response = await api.get('/dashboard/users/doctors', { params });
+    return response.data;
+  },
 
+  // Get pharmacies
+  getPharmacies: async (params = {}) => {
+    const response = await api.get('/dashboard/users/pharmacies', { params });
+    return response.data;
+  },
+
+  // Upload profile picture
+  uploadProfilePicture: async (file) => {
+    const formData = new FormData();
+    formData.append('profile_picture', file);
+    
+    const response = await api.post('/dashboard/users/profile-picture', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
