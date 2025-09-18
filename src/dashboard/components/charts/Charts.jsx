@@ -1,28 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line
-} from 'recharts';
-import { dashboardService } from "../../services/dashboard";
+import { dashboardService } from "../../services";
+import { LineChart, BarChart, PieChart } from "../charts";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 export default function Charts() {
   const [chartsData, setChartsData] = useState({
-    medicineShortage: [],
-    dailyOrders: [],
-    userRoles: []
+    medicineShortage: { series: [], options: {} },
+    dailyOrders: { series: [], options: {} },
+    userRoles: { series: [], options: {} }
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,56 +49,90 @@ export default function Charts() {
     }
   };
 
-  // Transform medicine shortage data from Chart.js to Recharts format
+  // Transform medicine shortage data to ApexCharts format
   const transformMedicineShortageData = (data) => {
     console.log('🔄 Transforming medicine shortage data:', data);
     if (!data || !data.labels || !data.datasets) {
       console.log('❌ Medicine shortage data is invalid:', { data, labels: data?.labels, datasets: data?.datasets });
-      return [];
+      return { series: [], options: {} };
     }
     
-    const transformed = data.labels.map((label, index) => ({
-      pharmacy_name: label || `Pharmacy ${index + 1}`,
-      shortage_count: data.datasets[0]?.data[index] || 0
-    }));
+    const series = [{
+      name: 'Shortage Count',
+      data: data.datasets[0]?.data || []
+    }];
     
-    console.log('✅ Medicine shortage transformed:', transformed);
-    return transformed;
+    const options = {
+      chart: {
+        type: 'bar',
+        height: 350
+      },
+      xaxis: {
+        categories: data.labels || []
+      },
+      title: {
+        text: 'Medicine Shortage by Pharmacy'
+      }
+    };
+    
+    console.log('✅ Medicine shortage transformed:', { series, options });
+    return { series, options };
   };
 
-  // Transform daily orders data from Chart.js to Recharts format
+  // Transform daily orders data to ApexCharts format
   const transformDailyOrdersData = (data) => {
     console.log('🔄 Transforming daily orders data:', data);
     if (!data || !data.labels || !data.datasets) {
       console.log('❌ Daily orders data is invalid:', { data, labels: data?.labels, datasets: data?.datasets });
-      return [];
+      return { series: [], options: {} };
     }
     
-    const transformed = data.labels.map((label, index) => ({
-      date: label,
-      orders_count: data.datasets[0]?.data[index] || 0,
-      revenue: 0 // Not available in current API
-    }));
+    const series = [{
+      name: 'Orders Count',
+      data: data.datasets[0]?.data || []
+    }];
     
-    console.log('✅ Daily orders transformed:', transformed);
-    return transformed;
+    const options = {
+      chart: {
+        type: 'line',
+        height: 350
+      },
+      xaxis: {
+        categories: data.labels || []
+      },
+      title: {
+        text: 'Daily Orders Trend'
+      }
+    };
+    
+    console.log('✅ Daily orders transformed:', { series, options });
+    return { series, options };
   };
 
-  // Transform user roles data from Chart.js to Recharts format
+  // Transform user roles data to ApexCharts format
   const transformUserRolesData = (data) => {
     console.log('🔄 Transforming user roles data:', data);
     if (!data || !data.labels || !data.datasets) {
       console.log('❌ User roles data is invalid:', { data, labels: data?.labels, datasets: data?.datasets });
-      return [];
+      return { series: [], options: {} };
     }
     
-    const transformed = data.labels.map((label, index) => ({
-      name: label,
-      count: data.datasets[0]?.data[index] || 0
-    }));
+    const series = data.datasets[0]?.data || [];
+    const labels = data.labels || [];
     
-    console.log('✅ User roles transformed:', transformed);
-    return transformed;
+    const options = {
+      chart: {
+        type: 'pie',
+        height: 350
+      },
+      labels: labels,
+      title: {
+        text: 'User Roles Distribution'
+      }
+    };
+    
+    console.log('✅ User roles transformed:', { series, options });
+    return { series, options };
   };
 
   console.log('🎨 Charts component render:', { loading, error, chartsData });
@@ -139,14 +159,14 @@ export default function Charts() {
   }
 
   // Check if all charts data is empty
-  const allChartsEmpty = chartsData.medicineShortage.length === 0 && 
-                        chartsData.dailyOrders.length === 0 && 
-                        chartsData.userRoles.length === 0;
+  const allChartsEmpty = chartsData.medicineShortage.series.length === 0 && 
+                        chartsData.dailyOrders.series.length === 0 && 
+                        chartsData.userRoles.series.length === 0;
 
   console.log('📊 Charts data check:', {
-    medicineShortage: chartsData.medicineShortage.length,
-    dailyOrders: chartsData.dailyOrders.length,
-    userRoles: chartsData.userRoles.length,
+    medicineShortage: chartsData.medicineShortage.series.length,
+    dailyOrders: chartsData.dailyOrders.series.length,
+    userRoles: chartsData.userRoles.series.length,
     allChartsEmpty
   });
 
@@ -166,113 +186,40 @@ export default function Charts() {
     <div className="charts-container">
       <div className="row">
         {/* Medicine Shortage Chart */}
-        <div className="col-md-6 mb-4">
-          <div className="dashboard-card">
-            <div className="card-header">
-              <h3 className="card-title">Medicine Shortage</h3>
-            </div>
-            <div className="card-body">
-              <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={chartsData.medicineShortage} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="pharmacy_name" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                    interval={0}
-                    fontSize={10}
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value, name) => [`${value} medicines`, 'Shortage Count']}
-                    labelStyle={{ fontSize: '12px' }}
-                  />
-                  <Legend />
-                  <Bar dataKey="shortage_count" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+        {chartsData.medicineShortage.series.length > 0 && (
+          <div className="col-md-6 mb-4">
+            <BarChart
+              chartData={chartsData.medicineShortage.series}
+              chartOptions={chartsData.medicineShortage.options}
+              title="Medicine Shortage by Pharmacy"
+              height={350}
+            />
           </div>
-        </div>
+        )}
 
         {/* User Roles Chart */}
-        <div className="col-md-6 mb-4">
-          <div className="dashboard-card">
-            <div className="card-header">
-              <h3 className="card-title">User Roles Distribution</h3>
-            </div>
-            <div className="card-body">
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={chartsData.userRoles}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="count"
-                  >
-                    {chartsData.userRoles.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip 
-                    formatter={(value, name) => [`${value} users`, name]}
-                    labelStyle={{ fontSize: '12px' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+        {chartsData.userRoles.series.length > 0 && (
+          <div className="col-md-6 mb-4">
+            <PieChart
+              chartData={chartsData.userRoles.series}
+              chartOptions={chartsData.userRoles.options}
+              title="User Roles Distribution"
+              height={350}
+            />
           </div>
-        </div>
+        )}
 
         {/* Daily Orders Chart */}
-        <div className="col-12 mb-4">
-          <div className="dashboard-card">
-            <div className="card-header">
-              <h3 className="card-title">Daily Orders Trend</h3>
-            </div>
-            <div className="card-body">
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={chartsData.dailyOrders} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="date" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={60}
-                    fontSize={10}
-                  />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value, name) => {
-                      if (name === 'orders_count') return [`${value} orders`, 'Orders Count'];
-                      if (name === 'revenue') return [`$${value}`, 'Revenue'];
-                      return [value, name];
-                    }}
-                    labelStyle={{ fontSize: '12px' }}
-                  />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="orders_count" 
-                    stroke="#8884d8" 
-                    strokeWidth={2}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="#82ca9d" 
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+        {chartsData.dailyOrders.series.length > 0 && (
+          <div className="col-12 mb-4">
+            <LineChart
+              chartData={chartsData.dailyOrders.series}
+              chartOptions={chartsData.dailyOrders.options}
+              title="Daily Orders Trend"
+              height={400}
+            />
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

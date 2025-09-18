@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   MdAttachMoney,
   MdAddTask,
@@ -7,13 +7,31 @@ import {
   MdShoppingCart,
   MdAssignment,
 } from "react-icons/md";
-import { useDashboardContext } from "../../context/DashboardContext";
+import { dashboardService } from "../../services";
 import Charts from "../../components/charts/Charts";
 import MiniStatistics from "../../components/cards/MiniStatistics";
 import IconBox from "../../components/icons/IconBox";
 
 export default function Dashboard() {
-  const { overview, loading, error } = useDashboardContext();
+  const [overview, setOverview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const data = await dashboardService.getOverview();
+        setOverview(data);
+      } catch (err) {
+        setError(err.message || 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   if (loading) {
     return (
