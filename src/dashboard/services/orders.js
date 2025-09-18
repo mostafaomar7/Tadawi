@@ -2,9 +2,27 @@ import api from './api';
 
 // Orders API Services
 export const ordersService = {
-  // Get all orders
+  // Get all orders with pagination
   getOrders: async (params = {}) => {
-    const response = await api.get('/dashboard/orders', { params });
+    const response = await api.get('/dashboard/orders', { 
+      params: {
+        per_page: 10,
+        page: 1,
+        ...params
+      }
+    });
+    return response.data;
+  },
+
+  // Get orders statistics
+  getOrdersStats: async () => {
+    const response = await api.get('/dashboard/orders/stats');
+    return response.data;
+  },
+
+  // Get my orders (for current user)
+  getMyOrders: async (params = {}) => {
+    const response = await api.get('/dashboard/orders/my', { params });
     return response.data;
   },
 
@@ -14,7 +32,7 @@ export const ordersService = {
     return response.data;
   },
 
-  // Update order
+  // Update order status
   updateOrder: async (id, orderData) => {
     const response = await api.put(`/dashboard/orders/${id}`, orderData);
     return response.data;
@@ -31,5 +49,4 @@ export const ordersService = {
     const response = await api.post(`/dashboard/orders/${id}/restore`);
     return response.data;
   },
-
 };

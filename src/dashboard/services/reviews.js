@@ -1,13 +1,26 @@
 import api from './api';
 
-const reviewsService = {
-  // Get all reviews
-  getReviews: async () => {
-    const response = await api.get('/dashboard/reviews');
+// Reviews API Services
+export const reviewsService = {
+  // Get all reviews with pagination
+  getReviews: async (params = {}) => {
+    const response = await api.get('/dashboard/reviews', { 
+      params: {
+        per_page: 10,
+        page: 1,
+        ...params
+      }
+    });
     return response.data;
   },
 
-  // Get review by ID
+  // Get reviews statistics
+  getReviewsStats: async () => {
+    const response = await api.get('/dashboard/reviews/stats');
+    return response.data;
+  },
+
+  // Get single review
   getReview: async (id) => {
     const response = await api.get(`/dashboard/reviews/${id}`);
     return response.data;
@@ -25,41 +38,15 @@ const reviewsService = {
     return response.data;
   },
 
-  // Delete review
+  // Delete review (soft delete)
   deleteReview: async (id) => {
     const response = await api.delete(`/dashboard/reviews/${id}`);
     return response.data;
   },
 
-  // Get reviews by rating
-  getReviewsByRating: async (rating) => {
-    const response = await api.get(`/dashboard/reviews/rating/${rating}`);
+  // Restore review
+  restoreReview: async (id) => {
+    const response = await api.post(`/dashboard/reviews/${id}/restore`);
     return response.data;
   },
-
-  // Get reviews by medicine
-  getReviewsByMedicine: async (medicineId) => {
-    const response = await api.get(`/dashboard/reviews/medicine/${medicineId}`);
-    return response.data;
-  },
-
-  // Get reviews by user
-  getReviewsByUser: async (userId) => {
-    const response = await api.get(`/dashboard/reviews/user/${userId}`);
-    return response.data;
-  },
-
-  // Search reviews
-  searchReviews: async (query) => {
-    const response = await api.get(`/dashboard/reviews/search?q=${encodeURIComponent(query)}`);
-    return response.data;
-  },
-
-  // Get reviews statistics
-  getReviewsStats: async () => {
-    const response = await api.get('/dashboard/reviews/stats');
-    return response.data;
-  }
 };
-
-export default reviewsService;

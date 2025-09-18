@@ -10,9 +10,12 @@ import Search from "./components/Home/PharmacySearch/Search";
 import AddDonation from "./components/Home/Donations/AddDontation";
 
 import DonateList from "./components/Home/Donations/DonateList";
-import AllPharamacy from "./components/Home/AllPharamacy/AllPharamacy"
+import AllPharamacy from "./components/Home/AllPharamacy/AllPharamacy";
 import MyDonation from "./components/Home/Donations/MyDonation";
 import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSearch";
+
+import { Routes, Route, useLocation } from "react-router-dom";
+import MainDashboard from "./dashboard/Dashboard";
 
 function App() {
   const location = useLocation();
@@ -27,9 +30,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<AuthPage />} />
 
-         
           <Route path="/add-dontation" element={<AddDonation />} />
-
 
           {/* صفحات محمية */}
           <Route
@@ -95,6 +96,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Patient />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/*"
+            element={
+              <ProtectedRoute>
+                <MainDashboard />
               </ProtectedRoute>
             }
           />

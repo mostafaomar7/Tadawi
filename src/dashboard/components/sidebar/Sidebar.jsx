@@ -7,7 +7,11 @@ import {
   MdShoppingCart, 
   MdPeople, 
   MdReceipt, 
-  MdVolunteerActivism 
+  MdVolunteerActivism,
+  MdScience,
+  MdCategory,
+  MdRateReview,
+  MdSettings
 } from "react-icons/md";
 
 // Dashboard routes
@@ -41,6 +45,26 @@ const routes = [
     name: "Donations",
     path: "/dashboard/donations",
     icon: MdVolunteerActivism,
+  },
+  {
+    name: "Active Ingredients",
+    path: "/dashboard/active-ingredients",
+    icon: MdScience,
+  },
+  {
+    name: "Therapeutic Classes",
+    path: "/dashboard/therapeutic-classes",
+    icon: MdCategory,
+  },
+  {
+    name: "Reviews",
+    path: "/dashboard/reviews",
+    icon: MdRateReview,
+  },
+  {
+    name: "Settings",
+    path: "/dashboard/settings",
+    icon: MdSettings,
   },
 ];
 

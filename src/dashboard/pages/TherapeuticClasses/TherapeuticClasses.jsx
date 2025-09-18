@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardBody, Button, Table, Badge, Modal, Form, Row, Col, Alert } from 'react-bootstrap';
-import { reviewsService } from '../../services';
+import { therapeuticClassesService } from '../../services';
 import { useToast } from '../../hooks/useToast';
 
-const Reviews = () => {
-  const [reviews, setReviews] = useState([]);
+const TherapeuticClasses = () => {
+  const [therapeuticClasses, setTherapeuticClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
-    rating: 5,
-    comment: '',
-    user_id: '',
-    medicine_id: ''
+    name: '',
+    description: '',
+    category: ''
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,23 +20,23 @@ const Reviews = () => {
   const { showToast } = useToast();
 
   useEffect(() => {
-    fetchReviews();
+    fetchTherapeuticClasses();
   }, [currentPage, searchTerm]);
 
-  const fetchReviews = async () => {
+  const fetchTherapeuticClasses = async () => {
     try {
       setLoading(true);
-      const response = await reviewsService.getReviews({
+      const response = await therapeuticClassesService.getTherapeuticClasses({
         page: currentPage,
         search: searchTerm,
         per_page: 10
       });
       
-      setReviews(response.data || []);
+      setTherapeuticClasses(response.data || []);
       setTotalPages(response.last_page || 1);
     } catch (err) {
-      setError(err.message || 'Failed to fetch reviews');
-      showToast('Error loading reviews', 'error');
+      setError(err.message || 'Failed to fetch therapeutic classes');
+      showToast('Error loading therapeutic classes', 'error');
     } finally {
       setLoading(false);
     }
@@ -47,66 +46,52 @@ const Reviews = () => {
     e.preventDefault();
     try {
       if (editingItem) {
-        await reviewsService.updateReview(editingItem.id, formData);
-        showToast('Review updated successfully', 'success');
+        await therapeuticClassesService.updateTherapeuticClass(editingItem.id, formData);
+        showToast('Therapeutic class updated successfully', 'success');
       } else {
-        await reviewsService.createReview(formData);
-        showToast('Review created successfully', 'success');
+        await therapeuticClassesService.createTherapeuticClass(formData);
+        showToast('Therapeutic class created successfully', 'success');
       }
       
       setShowModal(false);
       setEditingItem(null);
-      setFormData({ rating: 5, comment: '', user_id: '', medicine_id: '' });
-      fetchReviews();
+      setFormData({ name: '', description: '', category: '' });
+      fetchTherapeuticClasses();
     } catch (err) {
-      showToast(err.message || 'Failed to save review', 'error');
+      showToast(err.message || 'Failed to save therapeutic class', 'error');
     }
   };
 
   const handleEdit = (item) => {
     setEditingItem(item);
     setFormData({
-      rating: item.rating || 5,
-      comment: item.comment || '',
-      user_id: item.user_id || '',
-      medicine_id: item.medicine_id || ''
+      name: item.name || '',
+      description: item.description || '',
+      category: item.category || ''
     });
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this review?')) {
+    if (window.confirm('Are you sure you want to delete this therapeutic class?')) {
       try {
-        await reviewsService.deleteReview(id);
-        showToast('Review deleted successfully', 'success');
-        fetchReviews();
+        await therapeuticClassesService.deleteTherapeuticClass(id);
+        showToast('Therapeutic class deleted successfully', 'success');
+        fetchTherapeuticClasses();
       } catch (err) {
-        showToast(err.message || 'Failed to delete review', 'error');
+        showToast(err.message || 'Failed to delete therapeutic class', 'error');
       }
     }
   };
 
   const handleRestore = async (id) => {
     try {
-      await reviewsService.restoreReview(id);
-      showToast('Review restored successfully', 'success');
-      fetchReviews();
+      await therapeuticClassesService.restoreTherapeuticClass(id);
+      showToast('Therapeutic class restored successfully', 'success');
+      fetchTherapeuticClasses();
     } catch (err) {
-      showToast(err.message || 'Failed to restore review', 'error');
+      showToast(err.message || 'Failed to restore therapeutic class', 'error');
     }
-  };
-
-  const renderStars = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <i
-          key={i}
-          className={`fas fa-star ${i <= rating ? 'text-warning' : 'text-muted'}`}
-        />
-      );
-    }
-    return stars;
   };
 
   if (loading) {
@@ -115,24 +100,24 @@ const Reviews = () => {
         <div className="spinner-border text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
-        <p className="mt-3">Loading reviews...</p>
+        <p className="mt-3">Loading therapeutic classes...</p>
       </div>
     );
   }
 
   return (
-    <div className="reviews-page">
+    <div className="therapeutic-classes-page">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>Reviews Management</h2>
+        <h2>Therapeutic Classes Management</h2>
         <Button 
           variant="primary" 
           onClick={() => {
             setEditingItem(null);
-            setFormData({ rating: 5, comment: '', user_id: '', medicine_id: '' });
+            setFormData({ name: '', description: '', category: '' });
             setShowModal(true);
           }}
         >
-          <i className="fas fa-plus me-2"></i>Add New Review
+          <i className="fas fa-plus me-2"></i>Add New Therapeutic Class
         </Button>
       </div>
 
@@ -148,10 +133,10 @@ const Reviews = () => {
           <Row>
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Search Reviews</Form.Label>
+                <Form.Label>Search Therapeutic Classes</Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="Search by comment, user name..."
+                  placeholder="Search by name, description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -161,62 +146,27 @@ const Reviews = () => {
         </CardBody>
       </Card>
 
-      {/* Reviews Table */}
+      {/* Therapeutic Classes Table */}
       <Card>
         <CardBody>
           <Table responsive hover>
             <thead>
               <tr>
                 <th>ID</th>
-                <th>User</th>
-                <th>Medicine</th>
-                <th>Rating</th>
-                <th>Comment</th>
-                <th>Date</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Category</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {reviews.map((item) => (
+              {therapeuticClasses.map((item) => (
                 <tr key={item.id}>
                   <td>{item.id}</td>
-                  <td>
-                    {item.user ? (
-                      <div>
-                        <strong>{item.user.name}</strong>
-                        <br />
-                        <small className="text-muted">{item.user.email}</small>
-                      </div>
-                    ) : (
-                      'N/A'
-                    )}
-                  </td>
-                  <td>
-                    {item.medicine ? (
-                      <div>
-                        <strong>{item.medicine.name}</strong>
-                        <br />
-                        <small className="text-muted">{item.medicine.manufacturer}</small>
-                      </div>
-                    ) : (
-                      'N/A'
-                    )}
-                  </td>
-                  <td>
-                    <div className="d-flex align-items-center">
-                      {renderStars(item.rating)}
-                      <span className="ms-2">{item.rating}/5</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {item.comment || 'No comment'}
-                    </div>
-                  </td>
-                  <td>
-                    {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A'}
-                  </td>
+                  <td>{item.name}</td>
+                  <td>{item.description || 'N/A'}</td>
+                  <td>{item.category || 'N/A'}</td>
                   <td>
                     <Badge bg={item.deleted_at ? 'danger' : 'success'}>
                       {item.deleted_at ? 'Deleted' : 'Active'}
@@ -299,7 +249,7 @@ const Reviews = () => {
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            {editingItem ? 'Edit Review' : 'Add New Review'}
+            {editingItem ? 'Edit Therapeutic Class' : 'Add New Therapeutic Class'}
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleSubmit}>
@@ -307,55 +257,35 @@ const Reviews = () => {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Rating *</Form.Label>
-                  <Form.Select
-                    value={formData.rating}
-                    onChange={(e) => setFormData({ ...formData, rating: parseInt(e.target.value) })}
+                  <Form.Label>Name *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
-                  >
-                    <option value={1}>1 Star</option>
-                    <option value={2}>2 Stars</option>
-                    <option value={3}>3 Stars</option>
-                    <option value={4}>4 Stars</option>
-                    <option value={5}>5 Stars</option>
-                  </Form.Select>
+                  />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>User ID *</Form.Label>
+                  <Form.Label>Category</Form.Label>
                   <Form.Control
-                    type="number"
-                    value={formData.user_id}
-                    onChange={(e) => setFormData({ ...formData, user_id: e.target.value })}
-                    required
-                    placeholder="Enter user ID"
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={12}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Medicine ID *</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={formData.medicine_id}
-                    onChange={(e) => setFormData({ ...formData, medicine_id: e.target.value })}
-                    required
-                    placeholder="Enter medicine ID"
+                    type="text"
+                    value={formData.category}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    placeholder="e.g., Cardiovascular, Respiratory"
                   />
                 </Form.Group>
               </Col>
             </Row>
             <Form.Group className="mb-3">
-              <Form.Label>Comment</Form.Label>
+              <Form.Label>Description</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
-                value={formData.comment}
-                onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-                placeholder="Enter review comment..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Enter description..."
               />
             </Form.Group>
           </Modal.Body>
@@ -373,4 +303,4 @@ const Reviews = () => {
   );
 };
 
-export default Reviews;
+export default TherapeuticClasses;

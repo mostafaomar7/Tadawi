@@ -1,34 +1,54 @@
 import React from 'react';
+import { Card, CardBody } from 'react-bootstrap';
+import './MiniStatistics.css';
 
-export default function MiniStatistics({ startContent, endContent, name, growth, value, bgColor = 'bg-white' }) {
+const MiniStatistics = ({ 
+  startContent, 
+  endContent, 
+  name, 
+  growth, 
+  value,
+  className = '',
+  ...props 
+}) => {
   return (
-    <div className={`card ${bgColor} shadow-sm border-0`}>
-      <div className="card-body p-4">
+    <Card className={`mini-statistics-card ${className}`} {...props}>
+      <CardBody className="p-3">
         <div className="d-flex align-items-center h-100">
           {startContent && (
-            <div className="me-3">
+            <div className="start-content me-3">
               {startContent}
             </div>
           )}
           
-          <div className="flex-grow-1">
-            <h6 className="text-muted mb-1 small">{name}</h6>
-            <h3 className="mb-0 fw-bold text-dark">{value}</h3>
+          <div className="stat-content flex-grow-1">
+            <div className="stat-label text-muted small mb-1">
+              {name}
+            </div>
+            <div className="stat-number h4 mb-0 text-dark">
+              {value}
+            </div>
             {growth && (
               <div className="d-flex align-items-center mt-1">
-                <span className="text-success small fw-bold me-2">{growth}</span>
-                <span className="text-muted small">since last month</span>
+                <span className="text-success small fw-bold me-2">
+                  {growth}
+                </span>
+                <span className="text-muted small">
+                  since last month
+                </span>
               </div>
             )}
           </div>
           
           {endContent && (
-            <div className="ms-auto">
+            <div className="end-content ms-auto">
               {endContent}
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </CardBody>
+    </Card>
   );
-}
+};
+
+export default MiniStatistics;
