@@ -8,6 +8,7 @@ import SecurityNotice from "./components/Home/SecurityNotice";
 import Profile from "./components/Home/Profile/Profile";
 import Search from "./components/Home/PharmacySearch/Search";
 import AddDonation from "./components/Home/Donations/AddDontation";
+import ConflictSystem from "./components/Home/ConflictSystem/conflictsystem";
 
 function App() {
   const location = useLocation();
@@ -23,7 +24,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/add-dontation" element={<AddDonation />} />
-           
+
           {/* صفحات محمية */}
           <Route
             path="/profile"
@@ -48,6 +49,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Patient />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/conflict-system"
+            element={
+              <ProtectedRoute>
+                <ConflictSystem />
               </ProtectedRoute>
             }
           />
