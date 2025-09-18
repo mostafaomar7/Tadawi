@@ -8,6 +8,7 @@ import SecurityNotice from "./components/Home/SecurityNotice";
 import Profile from "./components/Home/Profile/Profile";
 import Search from "./components/Home/PharmacySearch/Search";
 import AddDonation from "./components/Home/Donations/AddDontation";
+import ConflictSystem from "./components/Home/ConflictSystem/conflictsystem";
 
 import DonateList from "./components/Home/Donations/DonateList";
 import AllPharamacy from "./components/Home/AllPharamacy/AllPharamacy";
@@ -100,10 +101,18 @@ function App() {
           />
 
           <Route
+            path="/conflict-system"
+            element={
+              <ProtectedRoute>
+                <ConflictSystem />
+
+
+          <Route
             path="/dashboard/*"
             element={
               <ProtectedRoute>
                 <MainDashboard />
+
               </ProtectedRoute>
             }
           />

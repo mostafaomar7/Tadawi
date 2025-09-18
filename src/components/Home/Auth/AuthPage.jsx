@@ -167,18 +167,18 @@ export default function AuthPage() {
     try {
       const res = await fetch(`${BASE_URL}auth/login`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (res.ok) {
-        if (data.token) localStorage.setItem("authToken", data.token);
-        if (data.user) localStorage.setItem("authUser", JSON.stringify(data.user));
-        const savedRole = localStorage.getItem("authRole");
-        if (savedRole) {
-          navigate("/"); // already has role
+        localStorage.setItem('authToken', data.token); // حفظ الـ token
+        localStorage.setItem('authUser', JSON.stringify(data.user));
+        if (data.role) {
+          localStorage.setItem("authRole", data.role);
+          navigate("/");
         } else {
-          setMode("choose-role"); // choose role first time
+          setMode("choose-role");
         }
       } else {
         setMessage("❌ " + (data.message || "Login failed"));
