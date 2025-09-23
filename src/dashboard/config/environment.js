@@ -4,17 +4,22 @@
 // تعديل الإعدادات من هنا فقط - All settings in one place
 
 // 🌐 API Configuration - تغيير الـ URLs من هنا
+
 const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:8000/api',
-  DASHBOARD_URL: process.env.REACT_APP_DASHBOARD_URL || 'http://localhost:3000/dashboard',
+  BASE_URL:
+    process.env.REACT_APP_API_URL ||
+    "https://tadawi-app-deploy-main-zwrtj5.laravel.cloud/api",
+  DASHBOARD_URL:
+    process.env.REACT_APP_DASHBOARD_URL ||
+    "https://tadawi-app-deploy-main-zwrtj5.laravel.cloud/dashboard",
   TIMEOUT: 10000,
 };
 
 // 📱 App Configuration
 const APP_CONFIG = {
-  NAME: process.env.REACT_APP_NAME || 'Tadawi Dashboard',
-  VERSION: process.env.REACT_APP_VERSION || '1.0.0',
-  DEBUG: process.env.REACT_APP_DEBUG === 'true',
+  NAME: process.env.REACT_APP_NAME || "Tadawi Dashboard",
+  VERSION: process.env.REACT_APP_VERSION || "1.0.0",
+  DEBUG: process.env.REACT_APP_DEBUG === "true",
 };
 
 // ⚙️ Features Configuration
@@ -36,7 +41,12 @@ const PAGINATION_CONFIG = {
 // 📁 File Upload Configuration
 const UPLOAD_CONFIG = {
   MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
-  ALLOWED_FILE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'],
+  ALLOWED_FILE_TYPES: [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "application/pdf",
+  ],
   MAX_FILES_PER_UPLOAD: 5,
 };
 
@@ -45,13 +55,13 @@ const UI_CONFIG = {
   SIDEBAR_WIDTH: 250,
   SIDEBAR_COLLAPSED_WIDTH: 80,
   NAVBAR_HEIGHT: 60,
-  CHART_COLORS: ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'],
+  CHART_COLORS: ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"],
 };
 
 // 🔐 Security Configuration
 const SECURITY_CONFIG = {
-  TOKEN_KEY: 'auth_token',
-  REFRESH_TOKEN_KEY: 'refresh_token',
+  TOKEN_KEY: "auth_token",
+  REFRESH_TOKEN_KEY: "refresh_token",
   TOKEN_EXPIRY_CHECK_INTERVAL: 60000, // 1 minute
 };
 
@@ -70,27 +80,27 @@ export const config = {
   API_BASE_URL: API_CONFIG.BASE_URL,
   DASHBOARD_BASE_URL: API_CONFIG.DASHBOARD_URL,
   API_TIMEOUT: API_CONFIG.TIMEOUT,
-  
+
   // App Settings
   APP_NAME: APP_CONFIG.NAME,
   APP_VERSION: APP_CONFIG.VERSION,
   DEBUG: APP_CONFIG.DEBUG,
-  
+
   // Features
   ...FEATURES_CONFIG,
-  
+
   // Pagination
   ...PAGINATION_CONFIG,
-  
+
   // File Upload
   ...UPLOAD_CONFIG,
-  
+
   // UI
   ...UI_CONFIG,
-  
+
   // Security
   ...SECURITY_CONFIG,
-  
+
   // Dashboard
   ...DASHBOARD_CONFIG,
 };
@@ -108,15 +118,16 @@ export const DEBUG = config.DEBUG;
 // ========================================
 // 📝 CONFIGURATION HELPERS
 // ========================================
-export const getApiUrl = (endpoint = '') => `${API_BASE_URL}${endpoint}`;
-export const getDashboardUrl = (path = '') => `${DASHBOARD_BASE_URL}${path}`;
-export const isFeatureEnabled = (feature) => config[`ENABLE_${feature.toUpperCase()}`] || false;
+export const getApiUrl = (endpoint = "") => `${API_BASE_URL}${endpoint}`;
+export const getDashboardUrl = (path = "") => `${DASHBOARD_BASE_URL}${path}`;
+export const isFeatureEnabled = (feature) =>
+  config[`ENABLE_${feature.toUpperCase()}`] || false;
 
 // ========================================
 // 🔧 DEVELOPMENT HELPERS
 // ========================================
 if (DEBUG) {
-  console.log('🚀 Tadawi Dashboard Configuration:', {
+  console.log("🚀 Tadawi Dashboard Configuration:", {
     API_BASE_URL,
     DASHBOARD_BASE_URL,
     APP_NAME,

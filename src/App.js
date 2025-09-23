@@ -162,7 +162,7 @@ function App() {
                   <PharmacyManagement />
                 </ProtectedRoute>
               }
-              />
+            />
           </Routes>
         </main>
 

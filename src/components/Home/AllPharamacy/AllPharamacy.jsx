@@ -1,5 +1,6 @@
 // AllPharmacy.jsx
 import React, { useEffect, useState } from "react";
+import { BASE_URL } from "../../../config";
 import {
   FaStar,
   FaCheckCircle,
@@ -45,7 +46,7 @@ export default function AllPharmacy() {
       "Content-Type": "application/json",
     };
 
-    fetch("http://127.0.0.1:8000/api/v1/pharmacies", { headers })
+    fetch(`${BASE_URL}pharmacies`, { headers })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch data from server");
         return res.json();
@@ -65,7 +66,7 @@ export default function AllPharmacy() {
   }, []);
 
   const filteredPharmacies = pharmacies.filter((pharmacy) =>
-    pharmacy.location.toLowerCase().includes(searchTerm.toLowerCase())
+    pharmacy.user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const renderContent = () => {

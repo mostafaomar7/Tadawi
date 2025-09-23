@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import MedicineSortFilter from "./MedicineSortFilter";
+import { BASE_URL } from "../../../config";
 import {
   Search as SearchIcon,
   Pill,
@@ -118,7 +118,7 @@ const Search = ({ initialQuery = "" }) => {
     setSearched(true);
 
     try {
-      let url = `http://127.0.0.1:8000/api/v1/search?name=${encodeURIComponent(
+      let url = `${BASE_URL}search?name=${encodeURIComponent(
         searchValue
       )}&page=${pageNumber}&per_page=5`;
 
@@ -174,18 +174,15 @@ const Search = ({ initialQuery = "" }) => {
         console.warn("Location blocked. AI search continues without location.");
       }
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/v1/search/with-alternatives",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-          body: JSON.stringify(body),
-        }
-      );
+      const response = await fetch(`${BASE_URL}search/with-alternatives`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        body: JSON.stringify(body),
+      });
 
       if (!response.ok) throw new Error("Failed to fetch AI alternatives");
 
@@ -212,7 +209,7 @@ const Search = ({ initialQuery = "" }) => {
     setAddingToCart((prev) => ({ ...prev, [itemKey]: true }));
 
     try {
-      const response = await fetch("http://localhost:8000/api/v1/auth/cart", {
+      const response = await fetch(`${BASE_URL}auth/cart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
