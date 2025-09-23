@@ -17,6 +17,7 @@ import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSe
 
 import MainDashboard from "./dashboard/Dashboard";
 import DonationDetails from "./components/Home/Donations/DonationDetails";
+import { CartProvider } from "./components/Home/PharmacySearch/CartContext";
 import Checkout from "./components/Home/Checkout/Checkout";
 
 function App() {
@@ -24,106 +25,116 @@ function App() {
   const hideNavbar = location.pathname === "/auth";
 
   return (
-    <div className="App relative min-h-screen">
-      {!hideNavbar && <Navbar />}
+    <CartProvider>
+      <div className="App relative min-h-screen">
+        {!hideNavbar && <Navbar />}
 
-      <main className={`${!hideNavbar ? "pt-14 pb-14" : ""}`}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/auth" element={<AuthPage />} />
+        <main className={`${!hideNavbar ? "pt-14 pb-14" : ""}`}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<AuthPage />} />
 
-          <Route path="/add-dontation" element={<AddDonation />} />
+            <Route path="/add-dontation" element={<AddDonation />} />
 
-          {/* صفحات محمية */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Pharmacy"
-            element={
-              <ProtectedRoute>
-                <AllPharamacy />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/add-dontation"
-            element={
-              <ProtectedRoute>
-                <AddDonation />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/donate"
-            element={
-              <ProtectedRoute>
-                <DonateList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Mydonate"
-            element={
-              <ProtectedRoute>
-                <MyDonation />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/pharasearch"
-            element={
-              <ProtectedRoute>
-                <Search />
-              </ProtectedRoute>
-            }
-          />
+            {/* صفحات محمية */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Pharmacy"
+              element={
+                <ProtectedRoute>
+                  <AllPharamacy />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/add-dontation"
+              element={
+                <ProtectedRoute>
+                  <AddDonation />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/donate"
+              element={
+                <ProtectedRoute>
+                  <DonateList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Mydonate"
+              element={
+                <ProtectedRoute>
+                  <MyDonation />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pharasearch"
+              element={
+                <ProtectedRoute>
+                  <Search />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/alternative-search"
-            element={
-              <ProtectedRoute>
-                <AlternativeSearch />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/alternative-search"
+              element={
+                <ProtectedRoute>
+                  <AlternativeSearch />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/patient"
-            element={
-              <ProtectedRoute>
-                <Patient />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/patient"
+              element={
+                <ProtectedRoute>
+                  <Patient />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-          path="/conflict-system"
-          element={
-            <ProtectedRoute>
-              <ConflictSystem />
-            </ProtectedRoute>
-          }
-        />
-    <Route
-          path="//donations/:id"
-          element={
-            <ProtectedRoute>
-              <DonationDetails />
-            </ProtectedRoute>
-          }
-        />
-          <Route
-            path="/dashboard/*"
-            element={
-              <ProtectedRoute>
-                <MainDashboard />
+            <Route
+              path="/conflict-system"
+              element={
+                <ProtectedRoute>
+                  <ConflictSystem />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="//donations/:id"
+              element={
+                <ProtectedRoute>
+                  <DonationDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/*"
+              element={
+                <ProtectedRoute>
+                  <MainDashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </main>
 
+
+        {!hideNavbar && <SecurityNotice />}
+      </div>
+    </CartProvider>
               </ProtectedRoute>
             }
           />
