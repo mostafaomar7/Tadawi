@@ -36,6 +36,10 @@ body{
 
 /* للـ Firefox */
 * {
-  scrollbar-width: thin; /* رفيع */
+  scrollbar-width: thin; 
   scrollbar-color: #3b82f6 #f0f0f0; /* thumb color و track color */
 }
+button{
+outline: "none";
+border: "none"
+} 

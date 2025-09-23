@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User, ShoppingCart, X, Trash2 } from "lucide-react";
+import { User, ShoppingCart, X, Trash2, Package, CreditCard } from "lucide-react";
 import { MoonLoader } from "react-spinners";
 import { CartContext } from "../PharmacySearch/CartContext";
 
@@ -223,102 +223,147 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="bg-white shadow-md fixed w-full top-0 z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 h-14">
+      {/* Custom scrollbar hide styles */}
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+
+      <nav className="bg-white/95 backdrop-blur-lg shadow-xl fixed w-full top-0 z-50 border-b border-gray-200/50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
           {/* Logo + Brand */}
-          <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Tadawi Logo" className="h-8 w-10" />
-            <Link
-              to="/"
-              className="text-xl font-bold text-blue-600 no-underline"
-            >
-              Tadawi
+          <div className="flex items-center gap-3">
+            <Link to="/" className="transition-transform duration-200 hover:scale-105">
+              <img
+                src="/logo.png"
+                alt="Tadawi Logo"
+                className="object-contain transition-all duration-200"
+                style={{ height: "120px", width: "auto" }}
+              />
             </Link>
           </div>
 
           {/* Hamburger button (mobile) */}
           <button
-            className="lg:hidden text-gray-700 text-2xl"
+          style={{ outline: "none", border: "none" }}
+            className="lg:hidden p-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-all duration-200 transform hover:scale-105"
             onClick={() => {
               setIsOpen(!isOpen);
             }}
           >
-            ☰
+            <div className="w-6 h-6 flex flex-col justify-center items-center">
+              <span className={`block w-5 h-0.5 bg-current transition-all duration-200 ${isOpen ? 'rotate-45 translate-y-1' : ''}`}></span>
+              <span className={`block w-5 h-0.5 bg-current mt-1 transition-all duration-200 ${isOpen ? 'opacity-0' : ''}`}></span>
+              <span className={`block w-5 h-0.5 bg-current mt-1 transition-all duration-200 ${isOpen ? '-rotate-45 -translate-y-1' : ''}`}></span>
+            </div>
           </button>
 
           {/* Links */}
           <div
             className={`
-              ${isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}
-               transition-all duration-300
-              lg:flex lg:opacity-100 lg:max-h-none
-              flex-col lg:flex-row lg:items-center gap-4
-              absolute lg:static top-14 left-0 w-full lg:w-auto
-              bg-white lg:bg-transparent px-4 lg:p-0
+              ${isOpen ? "max-h-96 opacity-100 py-4" : "max-h-0 opacity-0 py-0"}
+              transition-all duration-300 ease-in-out
+              lg:flex lg:opacity-100 lg:max-h-none lg:py-0
+              flex-col lg:flex-row lg:items-center gap-2 lg:gap-6
+              absolute lg:static top-16 left-0 w-full lg:w-auto
+              bg-white/95 lg:bg-transparent backdrop-blur-lg lg:backdrop-blur-none
+              px-6 lg:p-0 shadow-lg lg:shadow-none
+              border-b border-gray-200/50 lg:border-0
             `}
           >
             <Link
               to="/donate"
-              className="block text-blue-600 hover:text-blue-800 no-underline"
+              className="block px-4 py-2 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 no-underline text-base font-semibold transform hover:scale-105 hover:shadow-md"
             >
               Donate
             </Link>
+
             <Link
               to="/Pharmacy"
-              className="block text-blue-600 hover:text-blue-800 no-underline"
+              className="block px-4 py-2 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 no-underline text-base font-semibold transform hover:scale-105 hover:shadow-md"
             >
               Pharmacy
+            </Link>
+
+            <Link
+              to="/alternative-search"
+              className="block px-4 py-2 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 no-underline text-base font-semibold transform hover:scale-105 hover:shadow-md"
+            >
+              AI Alternative Search
+            </Link>
+
+            <Link
+              to="/conflict-system"
+              className="block px-4 py-2 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 no-underline text-base font-semibold transform hover:scale-105 hover:shadow-md"
+            >
+              AI Conflict System
             </Link>
 
             {!token ? (
               <Link
                 to="/auth"
-                className="block bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition text-sm no-underline"
+                className="block bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl transition-all duration-200 no-underline font-bold text-base shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 Login
               </Link>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4 lg:gap-3">
                 {/* Cart Icon */}
                 <div className="relative">
                   <button
                     onClick={() => {
                       setCartOpen(!cartOpen);
                     }}
-                    className="flex items-center text-blue-600 hover:text-blue-800 bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none border-0 relative"
-                  >
-                    <ShoppingCart className="w-7 h-7" />
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartItemCount}
-                    </span>
+                    style={{ outline: "none", border: "none" }}
+                    className="p-3 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all duration-200 transform hover:scale-110 shadow-md hover:shadow-lg"                  >
+                    <ShoppingCart className="w-6 h-6 focus:outline-none" />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg animate-pulse">
+                        {cartItemCount}
+                      </span>
+                    )}
+
                   </button>
                 </div>
 
                 {/* Profile Icon */}
                 <div className="relative" ref={dropdownRef}>
                   <button
+                  style={{ outline: "none", border: "none" }}
                     onClick={() => {
                       setProfileOpen(!profileOpen);
                     }}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 bg-transparent hover:bg-transparent active:bg-transparent focus:outline-none border-0"
+                    className="p-3 rounded-full bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-700 transition-all duration-200 transform hover:scale-110 shadow-md hover:shadow-lg"
                   >
-                    <User className="w-7 h-7" />
+                    <User className="w-6 h-6" />
                   </button>
 
                   {/* Profile Dropdown */}
                   {profileOpen && (
-                    <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl ring-1 ring-gray-200 z-50 overflow-hidden">
+                    <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl ring-1 ring-gray-200 z-50 overflow-hidden transform transition-all duration-200 animate-in slide-in-from-top-2">
+                      <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
+                        {/* <p className="font-bold text-gray-800 text-base">Welcome back!</p> */}
+                        <p className="text-lg font-bold text-gray-600">{user?.name || user?.email || "User"}</p>
+                      </div>
                       <Link
                         to="/profile"
-                        className="flex items-center gap-3 px-4 py-3 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors no-underline"
+                        className="flex items-center gap-3 px-4 py-3 text-gray-700 text-base font-medium hover:bg-gray-50 transition-all duration-200 no-underline transform hover:translate-x-1"
                         onClick={() => setProfileOpen(false)}
                       >
+                        <User className="w-5 h-5 text-blue-500" />
                         View Profile
                       </Link>
                       <button
+                      style={{ outline: "none", border: "none" }}
                         onClick={handleLogout}
-                        className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors border-0 focus:outline-none"
+                        className="flex items-center gap-3 w-full text-left px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50 transition-all duration-200 border-0 focus:outline-none transform hover:translate-x-1"
                       >
+                        <X className="w-5 h-5" />
                         Logout
                       </button>
                     </div>
@@ -335,29 +380,36 @@ export default function Navbar() {
         <div className="fixed inset-0 z-50 overflow-hidden">
           {/* Overlay */}
           <div
-            className="absolute inset-0 bg-black bg-opacity-50"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
             onClick={() => setCartOpen(false)}
           ></div>
 
           {/* Cart Panel */}
           <div
             ref={cartRef}
-            className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col"
+            className="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-2xl transform transition-all duration-300 ease-out animate-in slide-in-from-right"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 border-b-2 border-gray-200 pb-2 mb-1">
-                SHOPPING CART
-              </h2>
+            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+                  Shopping Cart
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {cartItemCount} {cartItemCount === 1 ? 'item' : 'items'} in your cart
+                </p>
+              </div>
               <button
+              style={{ outline: "none", border: "none" }}
                 onClick={() => setCartOpen(false)}
-                className="bg-white border-0 p-0 text-black hover:text-gray-700 transition-colors"
+                className="p-2 rounded-full bg-white hover:bg-gray-50 text-gray-500 hover:text-gray-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
             </div>
 
             {/* Cart Content */}
+
             <div
               className="flex-1 overflow-y-auto p-4"
               style={{ maxHeight: "calc(100vh - 120px)" }}
@@ -365,9 +417,12 @@ export default function Navbar() {
               {loading ? (
                 <Spinner />
               ) : !Array.isArray(cartItems) || cartItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-                  <ShoppingCart className="w-12 h-12 mb-2" />
-                  <p>Your cart is empty</p>
+                <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+                  <div className="bg-gray-100 p-6 rounded-full mb-4">
+                    <ShoppingCart className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <p className="text-xl font-semibold text-gray-700 mb-2">Your cart is empty</p>
+                  <p className="text-gray-500 text-center">Add some medicines to get started!</p>
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -389,37 +444,57 @@ export default function Navbar() {
                       return (
                         <div
                           key={pharmacyName}
-                          className="border border-gray-800 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow pt-1"
+                          className="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
                         >
                           {/* Pharmacy Header */}
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-semibold text-blue-600 text-sm">
-                              {pharmacyName}
-                            </h3>
+                          <div className="flex items-center justify-between mb-5">
+                            <div className="flex items-center gap-3">
+                              <div className="bg-blue-100 p-2 rounded-full">
+                                <Package className="w-5 h-5 text-blue-600" />
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-blue-700 text-lg tracking-tight">
+                                  {pharmacyName}
+                                </h3>
+                                <p className="text-sm text-gray-500">
+                                  {pharmacy.items.length} {pharmacy.items.length === 1 ? 'item' : 'items'}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                            style={{ outline: "none", border: "none" }}
+                              onClick={() =>
+                                clearPharmacyCart(pharmacy.pharmacyId)
+                              }
+                              className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm px-4 py-2 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                            >
+                              Clear All
+                            </button>
+
                           </div>
 
                           {/* Pharmacy Items */}
-                          <div className="space-y-3">
+                          <div className="space-y-4">
                             {pharmacy.items.map((item) => (
-                              <div key={item.id} className="space-y-2">
+                              <div key={item.id} className="space-y-3">
                                 {item.medicines.map((med) => {
                                   // Use med.medicine_id for delete
                                   return (
                                     <div
                                       key={med.id}
-                                      className="flex items-center justify-between"
+                                      className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 transition-all duration-200 hover:shadow-md"
                                     >
                                       <div className="flex-1">
-                                        <p className="font-medium text-gray-900 text-sm">
+                                        <p className="font-bold text-gray-900 text-base mb-1">
                                           {med.medicine?.brand_name ||
                                             item.name ||
                                             "Unknown Item"}
                                         </p>
-                                        <div className="flex items-center gap-4 mt-1">
-                                          <span className="text-gray-600 text-xs">
+                                        <div className="flex items-center gap-6">
+                                          <span className="text-gray-600 text-sm font-medium bg-gray-100 px-3 py-1 rounded-full">
                                             Qty: {med.quantity || 1}
                                           </span>
-                                          <span className="text-gray-900 font-medium text-sm">
+                                          <span className="text-green-600 font-bold text-lg">
                                             $
                                             {parseFloat(
                                               med.price_at_time
@@ -428,38 +503,41 @@ export default function Navbar() {
                                         </div>
                                       </div>
                                       <button
-                                        onClick={() =>
-                                          deleteCartMedicine(med.id)
-                                        }
-                                        className="ml-2 p-2 rounded-full bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-600 transition-colors border border-red-200 hover:border-red-300"
+                                      style={{ outline: "none", border: "none" }}
+                                        onClick={() => deleteCartItem(med.id)}
+                                        className="ml-4 p-3 rounded-full bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+
                                       >
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash2 className="w-5 h-5" />
                                       </button>
                                     </div>
                                   );
                                 })}
 
-                                {/* Pharmacy Subtotal Display */}
                                 {/* Pharmacy Subtotal + Checkout */}
-<div className="flex justify-between items-center pt-2 border-t border-gray-200">
-  <span className="font-medium text-gray-900 text-sm">
-    Pharmacy Subtotal:
-  </span>
-  <span className="font-medium text-gray-900 text-sm">
-    ${pharmacySubtotal.toFixed(2)}
-  </span>
-</div>
+                                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 mt-4">
+                                  <div className="flex justify-between items-center mb-3">
+                                    <span className="font-bold text-gray-800 text-base">
+                                      Pharmacy Subtotal:
+                                    </span>
+                                    <span className="font-bold text-blue-600 text-xl">
+                                      ${pharmacySubtotal.toFixed(2)}
+                                    </span>
+                                  </div>
 
-{/* Checkout Button for this pharmacy */}
-<button
-  onClick={() => {
-    setCartOpen(false);
-    navigate(`/checkout/${pharmacy.pharmacyId}`);
-  }}
-  className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg transition-colors font-medium"
->
-  Proceed to Checkout
-</button>
+                                  {/* Checkout Button for this pharmacy */}
+                                  <button
+                                  style={{ outline: "none", border: "none" }}
+                                    onClick={() => {
+                                      setCartOpen(false);
+                                      navigate(`/checkout/${pharmacy.pharmacyId}`);
+                                    }}
+                                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-4 rounded-xl transition-all duration-200 font-bold text-base shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2"
+                                  >
+                                    <CreditCard className="w-5 h-5" />
+                                    Proceed to Checkout
+                                  </button>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -469,34 +547,16 @@ export default function Navbar() {
                   )}
 
                   {/* Grand Total */}
-                  <div className="border-t border-gray-200 pt-4 mt-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-lg font-semibold text-gray-900">
-                        Total:
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-t-4 border-blue-500 rounded-2xl p-6 shadow-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-2xl font-bold text-gray-900">
+                        Grand Total:
                       </span>
-                      <span className="text-lg font-bold text-blue-600">
-                        $
-                        {Object.entries(groupedItems)
-                          .reduce((grand, [, pharmacy]) => {
-                            return (
-                              grand +
-                              pharmacy.items.reduce((subtotal, item) => {
-                                return (
-                                  subtotal +
-                                  item.medicines.reduce((total, med) => {
-                                    const price = parseFloat(
-                                      med.price_at_time || item.price || 0
-                                    );
-                                    const quantity = med.quantity || 1;
-                                    return total + price * quantity;
-                                  }, 0)
-                                );
-                              }, 0)
-                            );
-                          }, 0)
-                          .toFixed(2)}
+                      <span className="text-3xl font-bold text-blue-600">
+                        ${grandTotal.toFixed(2)}
                       </span>
                     </div>
+                  </div>
 
                     {/* Clear All Button */}
                     {Array.isArray(cartItems) && cartItems.length > 0 && (

@@ -2,6 +2,7 @@
 link{
     text-decoration: none;
     cursor: pointer;
+    font-size: 25px;
 }
 button{
     cursor: pointer;
