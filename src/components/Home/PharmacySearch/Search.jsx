@@ -14,9 +14,9 @@ import {
   Sparkles,
   Clock,
   Package,
-  Phone
+  Phone,
 } from "lucide-react";
-import './Search.css';
+import "./Search.css";
 
 import { CartContext } from "./CartContext";
 
@@ -46,9 +46,10 @@ const Notification = ({ message, type, onClose }) => {
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  const bgColor = type === "success"
-    ? "bg-gradient-to-r from-green-500 to-green-600"
-    : "bg-gradient-to-r from-red-500 to-red-600";
+  const bgColor =
+    type === "success"
+      ? "bg-gradient-to-r from-green-500 to-green-600"
+      : "bg-gradient-to-r from-red-500 to-red-600";
   const icon =
     type === "success" ? (
       <Check className="w-5 h-5" />
@@ -98,7 +99,8 @@ const Search = ({ initialQuery = "" }) => {
   const { cartItemCount, setCartItemCount } = useContext(CartContext);
 
   const userDrugs = ["Metformin"];
-  const showNotification = (message, type) => setNotification({ message, type });
+  const showNotification = (message, type) =>
+    setNotification({ message, type });
 
   useEffect(() => {
     if (initialQuery.trim()) {
@@ -150,7 +152,9 @@ const Search = ({ initialQuery = "" }) => {
 
   const handleAISearch = async () => {
     if (!query.trim()) {
-      setAiError("Please enter a medicine name before searching for alternatives.");
+      setAiError(
+        "Please enter a medicine name before searching for alternatives."
+      );
       return;
     }
 
@@ -170,15 +174,18 @@ const Search = ({ initialQuery = "" }) => {
         console.warn("Location blocked. AI search continues without location.");
       }
 
-      const response = await fetch("http://127.0.0.1:8000/api/v1/search/with-alternatives", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        body: JSON.stringify(body),
-      });
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/v1/search/with-alternatives",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+          body: JSON.stringify(body),
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to fetch AI alternatives");
 
@@ -220,15 +227,22 @@ const Search = ({ initialQuery = "" }) => {
       });
 
       const responseData = await response.json();
-      if (!response.ok) throw new Error(responseData.message || "Failed to add to cart");
+      if (!response.ok)
+        throw new Error(responseData.message || "Failed to add to cart");
 
       setCartSuccess((prev) => ({ ...prev, [itemKey]: true }));
       setCartItemCount((prev) => prev + quantity);
       window.dispatchEvent(new CustomEvent("cartUpdated"));
 
-      setTimeout(() => setCartSuccess((prev) => ({ ...prev, [itemKey]: false })), 2000);
+      setTimeout(
+        () => setCartSuccess((prev) => ({ ...prev, [itemKey]: false })),
+        2000
+      );
     } catch (err) {
-      showNotification(err.message || "Failed to add item to cart. Please try again.", "error");
+      showNotification(
+        err.message || "Failed to add item to cart. Please try again.",
+        "error"
+      );
     } finally {
       setAddingToCart((prev) => ({ ...prev, [itemKey]: false }));
     }
@@ -240,9 +254,17 @@ const Search = ({ initialQuery = "" }) => {
       className="col-span-full border border-gray-300 rounded-2xl p-5 mb-6 shadow-lg bg-gray-50 w-full"
     >
       <div className="mb-4">
-        <h3 className="text-2xl font-extrabold text-blue-900">{pharmacy.pharmacy_name}</h3>
-        <p className="text-base text-gray-800 mt-2"><span className="font-semibold">Contact:</span> {pharmacy.contact_info}</p>
-        <p className="text-base text-gray-800 mt-1"><span className="font-semibold">Location:</span> {pharmacy.pharmacy_location}</p>
+        <h3 className="text-2xl font-extrabold text-blue-900">
+          {pharmacy.pharmacy_name}
+        </h3>
+        <p className="text-base text-gray-800 mt-2">
+          <span className="font-semibold">Contact:</span>{" "}
+          {pharmacy.contact_info}
+        </p>
+        <p className="text-base text-gray-800 mt-1">
+          <span className="font-semibold">Location:</span>{" "}
+          {pharmacy.pharmacy_location}
+        </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {pharmacy.medicines.map((med) =>
@@ -276,8 +298,12 @@ const Search = ({ initialQuery = "" }) => {
             <MapPin className="w-5 h-5 text-indigo-600" />
           </div>
           <div className="flex-1">
-            <span className="font-bold text-indigo-700 text-lg tracking-tight">{item.pharmacy_name}</span>
-            <span className="ml-3 px-3 py-1 text-xs bg-indigo-50 text-indigo-600 rounded-full border border-indigo-200 font-medium">Pharmacy</span>
+            <span className="font-bold text-indigo-700 text-lg tracking-tight">
+              {item.pharmacy_name}
+            </span>
+            <span className="ml-3 px-3 py-1 text-xs bg-indigo-50 text-indigo-600 rounded-full border border-indigo-200 font-medium">
+              Pharmacy
+            </span>
           </div>
         </div>
 
@@ -285,11 +311,21 @@ const Search = ({ initialQuery = "" }) => {
 
         {/* Medicine Info */}
         <div className="flex items-center mb-3">
-          <div className={`p-2 rounded-full mr-3 ${isAI ? "bg-yellow-100" : "bg-blue-100"}`}>
-            <Pill className={`w-5 h-5 ${isAI ? "text-yellow-600" : "text-blue-600"}`} />
+          <div
+            className={`p-2 rounded-full mr-3 ${
+              isAI ? "bg-yellow-100" : "bg-blue-100"
+            }`}
+          >
+            <Pill
+              className={`w-5 h-5 ${
+                isAI ? "text-yellow-600" : "text-blue-600"
+              }`}
+            />
           </div>
           <div className="flex-1">
-            <h3 className="font-bold text-xl text-gray-900 tracking-tight">{item.medicine_name}</h3>
+            <h3 className="font-bold text-xl text-gray-900 tracking-tight">
+              {item.medicine_name}
+            </h3>
             {isAI && (
               <span className="inline-flex items-center gap-1 mt-1 px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full border border-yellow-200 font-medium">
                 <Sparkles className="w-3 h-3" />
@@ -302,19 +338,30 @@ const Search = ({ initialQuery = "" }) => {
         <div className="space-y-3 text-gray-700 mb-6 scrollbar-hide overflow-y-auto max-h-32">
           <div className="flex items-center">
             <MapPin className="w-4 h-4 mr-3 text-gray-500" />
-            <span className="text-sm font-medium">{item.pharmacy_location}</span>
+            <span className="text-sm font-medium">
+              {item.pharmacy_location}
+            </span>
           </div>
           <div className="flex items-center">
             <DollarSign className="w-4 h-4 mr-3 text-green-500" />
-            <span className="text-sm font-bold text-green-700 text-lg">{item.price} EGP</span>
+            <span className="text-sm font-bold text-green-700 text-lg">
+              {item.price} EGP
+            </span>
           </div>
           <div className="flex items-center">
             <Package className="w-4 h-4 mr-3 text-blue-500" />
-            <span className="text-sm text-gray-600 font-medium">{item.quantity} in stock</span>
+            <span className="text-sm text-gray-600 font-medium">
+              {item.quantity} in stock
+            </span>
           </div>
           <div className="flex items-center">
             <Phone className="w-4 h-4 mr-3 text-blue-500" />
-            <a href={`tel:${item.contact_info}`} className="text-sm text-blue-700 underline hover:text-blue-900 transition-colors font-medium">{item.contact_info}</a>
+            <a
+              href={`tel:${item.contact_info}`}
+              className="text-sm text-blue-700 underline hover:text-blue-900 transition-colors font-medium"
+            >
+              {item.contact_info}
+            </a>
           </div>
         </div>
 
@@ -331,7 +378,9 @@ const Search = ({ initialQuery = "" }) => {
               >
                 <Minus className="w-4 h-4 text-gray-600" />
               </button>
-              <span className="w-10 text-center font-bold text-lg">{quantity}</span>
+              <span className="w-10 text-center font-bold text-lg">
+                {quantity}
+              </span>
               <button
                 style={{ outline: "none", border: "none" }}
                 onClick={() => updateQuantity(itemKey, 1)}
@@ -389,18 +438,23 @@ const Search = ({ initialQuery = "" }) => {
           <Pill className="text-gray-500 w-5 h-5" />
         </div>
         <div className="flex-1">
-          <h3 className="font-bold text-xl text-gray-700 tracking-tight">{alt.name}</h3>
+          <h3 className="font-bold text-xl text-gray-700 tracking-tight">
+            {alt.name}
+          </h3>
           <span className="inline-flex items-center gap-1 mt-1 px-3 py-1 text-xs bg-gray-200 text-gray-600 rounded-full font-medium">
             <Sparkles className="w-3 h-3" />
             AI Generated Alternative
           </span>
         </div>
       </div>
-      <p className="text-gray-600 text-sm leading-relaxed mb-4 font-medium">{alt.description}</p>
+      <p className="text-gray-600 text-sm leading-relaxed mb-4 font-medium">
+        {alt.description}
+      </p>
       <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
         <p className="text-xs text-yellow-700 font-bold flex items-center gap-2">
           <AlertCircle className="w-4 h-4" />
-          This medicine is not available in nearby pharmacies but might be a suitable alternative. Consult your doctor before use.
+          This medicine is not available in nearby pharmacies but might be a
+          suitable alternative. Consult your doctor before use.
         </p>
       </div>
     </div>
@@ -409,16 +463,31 @@ const Search = ({ initialQuery = "" }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8">
       <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}</style>
 
-      {notification && <Notification message={notification.message} type={notification.type} onClose={() => setNotification(null)} />}
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
 
       {/* Header */}
       <header className="mb-12 text-center">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 tracking-tight">Medicine Search</h1>
-        <p className="text-gray-600 text-xl font-medium max-w-2xl mx-auto leading-relaxed">Find pharmacies near you that have your medicine in stock</p>
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 tracking-tight">
+          Medicine Search
+        </h1>
+        <p className="text-gray-600 text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+          Find pharmacies near you that have your medicine in stock
+        </p>
       </header>
 
       {/* Search Bar */}
@@ -465,7 +534,9 @@ const Search = ({ initialQuery = "" }) => {
 
       {results.length > 0 && (
         <div className="mb-10">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Available in Pharmacies</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Available in Pharmacies
+          </h2>
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             {results.map((pharmacy) => renderPharmacyGroup(pharmacy))}
           </div>
@@ -509,7 +580,9 @@ const Search = ({ initialQuery = "" }) => {
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-3 text-gray-600 bg-white px-6 py-3 rounded-full shadow-lg">
             <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-            <span className="font-medium">AI is searching for alternatives...</span>
+            <span className="font-medium">
+              AI is searching for alternatives...
+            </span>
           </div>
         </div>
       )}
@@ -532,7 +605,8 @@ const Search = ({ initialQuery = "" }) => {
               AI Recommended Alternatives
             </h2>
             <p className="text-gray-600 font-medium">
-              These alternatives are recommended by AI and available in nearby pharmacies
+              These alternatives are recommended by AI and available in nearby
+              pharmacies
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 scrollbar-hide overflow-y-auto max-h-screen">
@@ -549,7 +623,8 @@ const Search = ({ initialQuery = "" }) => {
               AI Suggested Alternatives (Not Available Nearby)
             </h2>
             <p className="text-gray-600 font-medium">
-              These alternatives are suggested by AI but not available in nearby pharmacies
+              These alternatives are suggested by AI but not available in nearby
+              pharmacies
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 scrollbar-hide overflow-y-auto max-h-screen">
