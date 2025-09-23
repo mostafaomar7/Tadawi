@@ -21,7 +21,6 @@ import Orders from "./components/Home/Orders/Orders";
 import OrderDetails from "./components/Home/Orders/OrderDetails";
 import { useLocation as useRouterLocation } from "react-router-dom";
 
-
 const SearchPage = () => {
   const location = useRouterLocation();
   const params = new URLSearchParams(location.search);
@@ -33,7 +32,6 @@ const SearchPage = () => {
     </ProtectedRoute>
   );
 };
-
 
 function App() {
   const location = useLocation();
@@ -90,9 +88,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route path="/pharasearch" element={<SearchPage />} />
-
             <Route
               path="/alternative-search"
               element={
@@ -101,7 +97,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/patient"
               element={
@@ -110,7 +105,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/conflict-system"
               element={
@@ -119,7 +113,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/donations/:id"
               element={
@@ -128,7 +121,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route
               path="/dashboard/*"
               element={
@@ -137,38 +129,32 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/checkout/:pharmacyId"
-            element={
-              <ProtectedRoute>
-                <Checkout />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/orders"
-            element={
-              <ProtectedRoute>
-                <Orders />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/orders/:orderId"
-            element={
-              <ProtectedRoute>
-                <OrderDetails />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </main>
-
+            <Route
+              path="/checkout/:pharmacyId"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <Orders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders/:orderId"
+              element={
+                <ProtectedRoute>
+                  <OrderDetails />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </main>
 
         {!hideNavbar && <SecurityNotice />}
       </div>

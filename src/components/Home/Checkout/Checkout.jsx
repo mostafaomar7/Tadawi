@@ -436,74 +436,42 @@ export default function Checkout() {
 
 
   const handlePayment = async () => {
-    if (!summary) return;
-    setProcessing(true);
-    setError(null);
+  if (!summary) return;
+  setProcessing(true);
+  setError(null);
 
-    const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("authToken");
 
-    try {
-      let response;
-      let url;
-      let options;
+  try {
+    if (paymentMethod === "cash") {
+      const body = new FormData();
+      body.append("payment_method", "cash");
+      body.append("billing_address", billingAddress);
+      body.append("shipping_address", shippingAddress);
+      body.append("phone", phone);
+      body.append("notes", notes);
+      body.append("prescription_required", prescriptionRequired ? "true" : "false");
 
-      if (paymentMethod === "cash") {
-        const body = new FormData();
-        body.append("payment_method", "cash");
-        body.append("billing_address", billingAddress);
-        body.append("shipping_address", shippingAddress);
-        body.append("phone", phone);
-        body.append("notes", notes);
-        body.append("prescription_required", prescriptionRequired ? "true" : "false");
-
-        for (let file of prescriptionFiles) {
-          body.append("prescription_files[]", file);
-        }
-
-
-      url = `${BASE_URL}checkout/initiate/${pharmacyId}`;
-      options = {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` }, // Important: don't set content-type manually
-        body,
-      };
-    } else if (paymentMethod === "paypal") {
-      // PayPal handled entirely via PayPal buttons
-      setError("Please complete payment using the PayPal button above.");
-      setProcessing(false);
-      return;
-    }
-
-      response = await fetch(url, options);
-
-      const data = await response.json();
-      console.log("Response:", data);
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || `Payment failed: ${JSON.stringify(data)}`
-        );
+      for (let file of prescriptionFiles) {
+        body.append("prescription_files[]", file);
       }
 
-      alert(data.message || "Payment successful!");
-    } catch (err) {
-      console.error("Payment Error:", err);
-      setError(err.message);
-    } finally {
-      setProcessing(false);
+      const response = await fetch(`${BASE_URL}checkout/initiate/${pharmacyId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body,
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Payment failed");
+
+      setOrderCompleted(true);
+      setTimeout(() => {
+        window.location.href = "/orders";
+      }, 3000);
+    } else if (paymentMethod === "paypal") {
+      setError("Please complete payment using the PayPal button above.");
     }
-
-
-    // For cash payments - show success message and redirect
-    setOrderCompleted(true);
-    setProcessing(false);
-    
-    // Redirect to orders page after showing success message
-    setTimeout(() => {
-      window.location.href = '/orders';
-    }, 3000);
-    
-    return; // Exit early to avoid the processing state change below
   } catch (err) {
     console.error("Payment Error:", err);
     setError(err.message);
@@ -511,8 +479,6 @@ export default function Checkout() {
     setProcessing(false);
   }
 };
-
-
 
   if (loading) return <CheckoutSkeleton />;
   if (error && !summary) return <ErrorDisplay message={error} />;
@@ -668,58 +634,68 @@ export default function Checkout() {
 
             {/* Payment Form */}
             {paymentMethod === "cash" && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6 bg-gray-50 p-6 rounded-2xl border border-gray-200"
-              >
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                  Payment Details
-                </h3>
-                
-                <div className="grid w-full gap-6">
-  <FormInput
-    label="Billing Address"
-    value={billingAddress}
-    onChange={(e) => setBillingAddress(e.target.value)}
-    placeholder="Enter your billing address"
-    required
-  />
-  <FormInput
-    label="Shipping Address"
-    value={shippingAddress}
-    onChange={(e) => setShippingAddress(e.target.value)}
-    placeholder="Enter your shipping address"
-    required
-  />
-</div>
-                <FormInput
-                  label="Phone Number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="Enter your phone number"
-                  type="tel"
-                  required
-                />
+  <motion.div
+    initial={{ opacity: 0, height: 0 }}
+    animate={{ opacity: 1, height: "auto" }}
+    exit={{ opacity: 0, height: 0 }}
+    transition={{ duration: 0.3 }}
+    className="space-y-6 bg-gray-50 p-6 rounded-2xl border border-gray-200"
+  >
+    <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+      Payment Details
+    </h3>
 
-                <FormTextarea
-                  label="Additional Notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Any special instructions or notes for your order..."
-                />
-                Prescription Required
-              </label>
-              <input
-                type="file"
-                multiple
-                onChange={(e) => setPrescriptionFiles([...e.target.files])}
-              />
-            </div>
-          )}
+    <div className="grid w-full gap-6">
+      <FormInput
+        label="Billing Address"
+        value={billingAddress}
+        onChange={(e) => setBillingAddress(e.target.value)}
+        placeholder="Enter your billing address"
+        required
+      />
+      <FormInput
+        label="Shipping Address"
+        value={shippingAddress}
+        onChange={(e) => setShippingAddress(e.target.value)}
+        placeholder="Enter your shipping address"
+        required
+      />
+      <FormInput
+        label="Phone Number"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        placeholder="Enter your phone number"
+        type="tel"
+        required
+      />
+      <FormTextarea
+        label="Additional Notes"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        placeholder="Any special instructions or notes for your order..."
+      />
+    </div>
+
+    <div className="space-y-2">
+      <label className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={prescriptionRequired}
+          onChange={(e) => setPrescriptionRequired(e.target.checked)}
+          className="rounded border-gray-300"
+        />
+        Prescription Required
+      </label>
+      <FileUpload
+        files={prescriptionFiles}
+        onChange={(e) => setPrescriptionFiles([...e.target.files])}
+        label="Upload Prescription Files"
+      />
+    </div>
+  </motion.div>
+)}
+
 
           {paymentMethod === "paypal" && (
             <div className="space-y-4 mt-6">
@@ -908,7 +884,7 @@ export default function Checkout() {
           100% { background-position: 200% 0; }
         }
       `}</style>
-    </div>  */}
-
+     */}
+</div> 
   );
 }
