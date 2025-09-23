@@ -18,6 +18,8 @@ import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSe
 import MainDashboard from "./dashboard/Dashboard";
 import DonationDetails from "./components/Home/Donations/DonationDetails";
 import Checkout from "./components/Home/Checkout/Checkout";
+import Orders from "./components/Home/Orders/Orders";
+import OrderDetails from "./components/Home/Orders/OrderDetails";
 
 function App() {
   const location = useLocation();
@@ -132,6 +134,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Checkout />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/:orderId"
+            element={
+              <ProtectedRoute>
+                <OrderDetails />
               </ProtectedRoute>
             }
           />

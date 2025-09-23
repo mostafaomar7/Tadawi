@@ -200,6 +200,14 @@ export default function Navbar() {
             >
               Pharmacy
             </Link>
+            {token && (
+              <Link
+                to="/orders"
+                className="block text-blue-600 hover:text-blue-800 no-underline"
+              >
+                My Orders
+              </Link>
+            )}
 
             {!token ? (
               <Link
@@ -248,9 +256,16 @@ export default function Navbar() {
                       >
                         View Profile
                       </Link>
+                      <Link
+                        to="/orders"
+                        className="flex items-center gap-3 px-4 py-3 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors no-underline border-t border-gray-100"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        My Orders
+                      </Link>
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors border-0 focus:outline-none"
+                        className="flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors border-0 focus:outline-none border-t border-gray-100"
                       >
                         Logout
                       </button>
