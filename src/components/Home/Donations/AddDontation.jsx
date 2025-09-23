@@ -40,7 +40,7 @@ const AlertMessage = ({ type, message, onDismiss }) => {
 
 const MedicineInputRow = ({ medicine, index, onChange, onRemove, error, suggestions = [], onPickSuggestion }) => (
   <div className="p-3 border rounded-lg bg-gray-50/50 space-y-2">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 items-start">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 items-start">
       {/* Medicine Name */}
       <div className="lg:col-span-2">
         <label className="text-sm font-medium text-gray-600 block mb-1">Medicine Name</label>
@@ -132,16 +132,25 @@ const ImageUploader = ({ photos, setPhotos, maxFiles, error }) => {
       <div className={`mt-2 flex justify-center rounded-lg border-2 ${error ? "border-red-500" : "border-dashed border-gray-300"} px-6 py-10`}>
         <div className="text-center">
           <UploadCloud className="mx-auto h-12 w-12 text-gray-400" />
-          <div className="mt-4 flex text-sm leading-6 text-gray-600">
-            <label
-              htmlFor="file-upload"
-              className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
-            >
-              <span>Choose files</span>
-              <input id="file-upload" name="file-upload" type="file" className="sr-only" multiple accept="image/*" onChange={handleFileChange} />
-            </label>
-            <p className="pl-1">or drag and drop</p>
-          </div>
+          <div className="mt-4 flex items-center text-sm leading-6 text-gray-600">
+  <label
+    htmlFor="file-upload"
+    className="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
+  >
+    <span>Choose files</span>
+    <input
+      id="file-upload"
+      name="file-upload"
+      type="file"
+      className="sr-only"
+      multiple
+      accept="image/*"
+      onChange={handleFileChange}
+    />
+  </label>
+  <p className="pl-1">or drag and drop</p>
+</div>
+
           <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
         </div>
       </div>
@@ -278,19 +287,14 @@ const AddDonation = () => {
 
   return (
     <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-xl rounded-2xl relative">
-       <div className="text-center absolute top-4 right-1">
-    <a
-    style={{textDecoration:"none",
-      padding :"8px",
-            fontSize :"20px",
-            width : "180px"
-    }}
-      href="/mydonate"
-      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-    >
-      MyDonate
-    </a>
-  </div>
+        <div className="absolute top-4 right-4">
+          <a
+            href="/mydonate"
+            className="inline-block px-6 py-2 text-lg font-semibold text-white bg-gradient-to-r from-green-500 to-green-700 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transform transition-all duration-300 no-underline"
+          >
+            My Donation
+          </a>
+        </div>
 
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800">Add New Donation</h2>
