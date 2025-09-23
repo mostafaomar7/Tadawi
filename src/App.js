@@ -18,6 +18,7 @@ import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSe
 import MainDashboard from "./dashboard/Dashboard";
 import DonationDetails from "./components/Home/Donations/DonationDetails";
 import { CartProvider } from "./components/Home/PharmacySearch/CartContext";
+import Checkout from "./components/Home/Checkout/Checkout";
 
 function App() {
   const location = useLocation();
@@ -130,9 +131,26 @@ function App() {
           </Routes>
         </main>
 
+
         {!hideNavbar && <SecurityNotice />}
       </div>
     </CartProvider>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout/:pharmacyId"
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
+
+      {!hideNavbar && <SecurityNotice />}
+    </div>
   );
 }
 

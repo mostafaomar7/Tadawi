@@ -440,14 +440,26 @@ export default function Navbar() {
                                 })}
 
                                 {/* Pharmacy Subtotal Display */}
-                                <div className="flex justify-between items-center pt-2 border-t border-gray-200">
-                                  <span className="font-medium text-gray-900 text-sm">
-                                    Pharmacy Subtotal:
-                                  </span>
-                                  <span className="font-medium text-gray-900 text-sm">
-                                    ${pharmacySubtotal.toFixed(2)}
-                                  </span>
-                                </div>
+                                {/* Pharmacy Subtotal + Checkout */}
+<div className="flex justify-between items-center pt-2 border-t border-gray-200">
+  <span className="font-medium text-gray-900 text-sm">
+    Pharmacy Subtotal:
+  </span>
+  <span className="font-medium text-gray-900 text-sm">
+    ${pharmacySubtotal.toFixed(2)}
+  </span>
+</div>
+
+{/* Checkout Button for this pharmacy */}
+<button
+  onClick={() => {
+    setCartOpen(false);
+    navigate(`/checkout/${pharmacy.pharmacyId}`);
+  }}
+  className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg transition-colors font-medium"
+>
+  Proceed to Checkout
+</button>
                               </div>
                             ))}
                           </div>
@@ -497,7 +509,7 @@ export default function Navbar() {
                     )}
 
                     {/* Checkout Button */}
-                    <button
+                    {/* <button
                       onClick={() => {
                         setCartOpen(false);
                         navigate("/checkout");
@@ -505,8 +517,8 @@ export default function Navbar() {
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl transition-colors font-medium border border-black border-opacity-10"
                     >
                       Proceed to Checkout
-                    </button>
-                  </div>
+                    </button> */}
+                  </div> 
                 </div>
               )}
             </div>
