@@ -1,13 +1,16 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, ShoppingCart, X, Trash2, Package, CreditCard } from "lucide-react";
+import { MoonLoader } from "react-spinners";
+import { CartContext } from "../PharmacySearch/CartContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { cartItemCount, setCartItemCount } = useContext(CartContext);
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]); // Ensure it's always an array
+  const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const dropdownRef = useRef(null);
@@ -17,6 +20,15 @@ export default function Navbar() {
   const user = localStorage.getItem("authUser")
     ? JSON.parse(localStorage.getItem("authUser"))
     : null;
+
+  // Listen for cart updates from other components
+  useEffect(() => {
+    const handleCartUpdate = (e) => {
+      fetchCartItems();
+    };
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    return () => window.removeEventListener("cartUpdated", handleCartUpdate);
+  }, []);
 
   // Fetch cart items
   const fetchCartItems = async () => {
@@ -33,13 +45,28 @@ export default function Navbar() {
 
       if (response.ok) {
         const data = await response.json();
-        // Ensure data is always an array
-        setCartItems(
-          Array.isArray(data) ? data : data.items || data.data || []
-        );
+        const items = Array.isArray(data)
+          ? data
+          : data.items || data.data || [];
+        setCartItems(items);
+
+        // Count unique {medicine_name, pharmacy_name} pairs
+        const uniquePairs = new Set();
+        Array.isArray(items) &&
+          items.forEach((item) => {
+            Array.isArray(item.medicines) &&
+              item.medicines.forEach((med) => {
+                uniquePairs.add(
+                  `${med.medicine?.brand_name || med.medicine_name || ""}|${
+                    item.pharmacy_name || ""
+                  }`
+                );
+              });
+          });
+        setCartItemCount(uniquePairs.size);
       } else {
-        console.error("Failed to fetch cart items");
         setCartItems([]);
+        setCartItemCount(0);
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
@@ -48,31 +75,7 @@ export default function Navbar() {
     setLoading(false);
   };
 
-  // Delete single item
-  const deleteCartItem = async (itemId) => {
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/v1/auth/cart/${itemId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        fetchCartItems(); // Refresh cart
-      } else {
-        console.error("Failed to delete item");
-      }
-    } catch (error) {
-      console.error("Error deleting item:", error);
-    }
-  };
-
-  // Clear pharmacy cart
+  // Clear pharmacy cart (delete all medicines for a pharmacy)
   const clearPharmacyCart = async (pharmacyId) => {
     try {
       const response = await fetch(
@@ -85,10 +88,7 @@ export default function Navbar() {
           },
         }
       );
-
-      if (response.ok) {
-        fetchCartItems(); // Refresh cart
-      } else {
+      if (!response.ok) {
         console.error("Failed to clear pharmacy cart");
       }
     } catch (error) {
@@ -96,6 +96,48 @@ export default function Navbar() {
     }
   };
 
+  // Clear all cart by looping through all pharmacies, show spinner until done
+  const clearAllCart = async () => {
+    setLoading(true);
+    // Get unique pharmacy ids
+    const pharmacyIds = Array.isArray(cartItems)
+      ? [...new Set(cartItems.map((item) => item.pharmacy_id))]
+      : [];
+    for (const pharmacyId of pharmacyIds) {
+      await clearPharmacyCart(pharmacyId);
+    }
+    await fetchCartItems();
+    setLoading(false);
+    setCartOpen(false);
+    setCartItemCount(0);
+    setCartItems([]);
+    window.dispatchEvent(new Event("cartUpdated"));
+  };
+
+  // Delete single medicine: clear pharmacy cart for that medicine's pharmacy
+  const deleteCartMedicine = async (medicineId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/v1/auth/cart/${medicineId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete medicine");
+      }
+
+      await fetchCartItems();
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (error) {
+      console.error("Error deleting medicine:", error);
+    }
+  };
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("authUser");
@@ -126,11 +168,6 @@ export default function Navbar() {
     0
   );
 
-  // Get cart item count - with safety check
-  const cartItemCount = Array.isArray(cartItems)
-    ? cartItems.reduce((count, item) => count + (item.quantity || 1), 0)
-    : 0;
-
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -151,6 +188,38 @@ export default function Navbar() {
       fetchCartItems();
     }
   }, [cartOpen, token]);
+
+  // Log medicines when cart opens and cartItems change
+  useEffect(() => {
+    if (cartOpen && Array.isArray(cartItems)) {
+      cartItems.forEach((item) => {
+        if (Array.isArray(item.medicines)) {
+          item.medicines.forEach((med) => {
+            console.log("Medicine object:", med);
+          });
+        }
+      });
+    }
+  }, [cartOpen, cartItems]);
+
+  // Fetch cart items and update count on mount and when token changes
+  useEffect(() => {
+    if (token) {
+      fetchCartItems();
+    } else {
+      setCartItemCount(0);
+      setCartItems([]);
+    }
+  }, [token]);
+
+  // Spinner component
+  function Spinner() {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <MoonLoader color="#2563eb" size={40} />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -258,6 +327,7 @@ export default function Navbar() {
                         {cartItemCount}
                       </span>
                     )}
+
                   </button>
                 </div>
 
@@ -339,12 +409,13 @@ export default function Navbar() {
             </div>
 
             {/* Cart Content */}
-            <div className="flex-1 overflow-y-auto scrollbar-hide p-6" style={{ height: 'calc(100vh - 140px)' }}>
+
+            <div
+              className="flex-1 overflow-y-auto p-4"
+              style={{ maxHeight: "calc(100vh - 120px)" }}
+            >
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-8 h-8 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-                  <div className="text-gray-500 font-medium">Loading cart items...</div>
-                </div>
+                <Spinner />
               ) : !Array.isArray(cartItems) || cartItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-gray-500">
                   <div className="bg-gray-100 p-6 rounded-full mb-4">
@@ -357,7 +428,6 @@ export default function Navbar() {
                 <div className="space-y-6">
                   {Object.entries(groupedItems).map(
                     ([pharmacyName, pharmacy]) => {
-                      // Calculate subtotal for this pharmacy
                       const pharmacySubtotal = pharmacy.items.reduce(
                         (subtotal, item) => {
                           return (
@@ -400,6 +470,7 @@ export default function Navbar() {
                             >
                               Clear All
                             </button>
+
                           </div>
 
                           {/* Pharmacy Items */}
@@ -407,9 +478,7 @@ export default function Navbar() {
                             {pharmacy.items.map((item) => (
                               <div key={item.id} className="space-y-3">
                                 {item.medicines.map((med) => {
-                                  const itemTotal =
-                                    parseFloat(med.price_at_time || 0) *
-                                    (med.quantity || 1);
+                                  // Use med.medicine_id for delete
                                   return (
                                     <div
                                       key={med.id}
@@ -437,6 +506,7 @@ export default function Navbar() {
                                       style={{ outline: "none", border: "none" }}
                                         onClick={() => deleteCartItem(med.id)}
                                         className="ml-4 p-3 rounded-full bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+
                                       >
                                         <Trash2 className="w-5 h-5" />
                                       </button>
@@ -487,6 +557,28 @@ export default function Navbar() {
                       </span>
                     </div>
                   </div>
+
+                    {/* Clear All Button */}
+                    {Array.isArray(cartItems) && cartItems.length > 0 && (
+                      <button
+                        onClick={clearAllCart}
+                        className="w-full text-white bg-red-600 hover:bg-red-700 py-3 font-bold transition-colors mb-2 border border-black border-opacity-10 rounded-xl"
+                      >
+                        Clear All Cart
+                      </button>
+                    )}
+
+                    {/* Checkout Button */}
+                    {/* <button
+                      onClick={() => {
+                        setCartOpen(false);
+                        navigate("/checkout");
+                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl transition-colors font-medium border border-black border-opacity-10"
+                    >
+                      Proceed to Checkout
+                    </button> */}
+                  </div> 
                 </div>
               )}
             </div>

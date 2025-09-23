@@ -15,6 +15,7 @@ import MyDonation from "./components/Home/Donations/MyDonation";
 import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSearch";
 import MainDashboard from "./dashboard/Dashboard";
 import DonationDetails from "./components/Home/Donations/DonationDetails";
+import { CartProvider } from "./components/Home/PharmacySearch/CartContext";
 import Checkout from "./components/Home/Checkout/Checkout";
 import { useLocation as useRouterLocation } from "react-router-dom";
 
@@ -36,15 +37,16 @@ function App() {
   const hideNavbar = location.pathname === "/auth";
 
   return (
-    <div className="App relative min-h-screen">
-      {!hideNavbar && <Navbar />}
+    <CartProvider>
+      <div className="App relative min-h-screen">
+        {!hideNavbar && <Navbar />}
 
-      <main className={`${!hideNavbar ? "pt-14 pb-14" : ""}`}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/auth" element={<AuthPage />} />
+        <main className={`${!hideNavbar ? "pt-14 pb-14" : ""}`}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<AuthPage />} />
 
-          <Route path="/add-dontation" element={<AddDonation />} />
+            <Route path="/add-dontation" element={<AddDonation />} />
 
           {/* صفحات محمية */}
           <Route
@@ -88,7 +90,6 @@ function App() {
             }
           />
 
-          {/* 🔹 هنا التعديل بتاع السيرش */}
           <Route path="/pharasearch" element={<SearchPage />} />
 
           <Route

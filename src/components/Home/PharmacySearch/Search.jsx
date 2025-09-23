@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import MedicineSortFilter from "./MedicineSortFilter";
 import {
   Search as SearchIcon,
   Pill,
   MapPin,
-  Package,
   DollarSign,
-  Phone,
   ShoppingCart,
   Plus,
   Minus,
@@ -16,6 +15,8 @@ import {
   Clock,
 } from "lucide-react";
 import './Search.css';
+
+import { CartContext } from "./CartContext";
 // Helper to get user location
 function getUserLocation() {
   return new Promise((resolve, reject) => {
@@ -38,9 +39,7 @@ function getUserLocation() {
 // Enhanced Notification Component
 const Notification = ({ message, type, onClose }) => {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 4000);
+    const timer = setTimeout(() => onClose(), 4000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
@@ -79,7 +78,14 @@ const Search = ({ initialQuery = "" }) => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const [sortedMedicines, setSortedMedicines] = useState([]);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [filters, setFilters] = useState({
+    categories: ["Painkiller", "Antibiotic", "Vitamin"],
+    price: ["0-50", "51-100", "100+"],
+  });
+  const [activeFilters, setActiveFilters] = useState([]);
   const [aiMatches, setAiMatches] = useState([]);
   const [aiUnavailable, setAiUnavailable] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
@@ -95,12 +101,12 @@ const Search = ({ initialQuery = "" }) => {
 
   // Notification state
   const [notification, setNotification] = useState(null);
+  const { cartItemCount, setCartItemCount } = useContext(CartContext);
 
   const userDrugs = ["Metformin"];
 
-  const showNotification = (message, type) => {
+  const showNotification = (message, type) =>
     setNotification({ message, type });
-  };
 
   // Auto-run search if initialQuery is passed
   useEffect(() => {
@@ -111,38 +117,43 @@ const Search = ({ initialQuery = "" }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuery]);
 
-  const handleSearch = async (overrideQuery) => {
+  const handleSearch = async (overrideQuery , pageNumber = 1) => {
     const searchValue = overrideQuery || query;
     if (!searchValue.trim()) return;
+    if (!query.trim()) return;
 
     setLoading(true);
     setError(null);
-    setResults([]);
-    setAiMatches([]);
-    setAiUnavailable([]);
-    setAiError(null);
     setSearched(true);
 
     try {
-      const { lat, lng } = await getUserLocation();
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/search?name=${encodeURIComponent(
-          searchValue
-        )}&lat=${lat}&lng=${lng}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        }
-      );
+      let url = `http://127.0.0.1:8000/api/v1/search?name=${encodeURIComponent(
+        query
+      )}&page=${pageNumber}&per_page=5`;
 
-      if (!response.ok) throw new Error("No results found, enter valid search");
+      try {
+        const { lat, lng } = await getUserLocation();
+        url += `&lat=${lat}&lng=${lng}`;
+      } catch (geoError) {
+        console.warn("Location blocked or unavailable.");
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) throw new Error("No results found");
 
       const data = await response.json();
-      setResults(data.matches || []);
+      setResults(data.matches);
+      setPage(data.pagination.current_page);
+      setLastPage(data.pagination.last_page);
     } catch (err) {
       setError(err.message);
+      setResults([]);
     } finally {
       setLoading(false);
     }
@@ -155,6 +166,7 @@ const Search = ({ initialQuery = "" }) => {
       );
       return;
     }
+
     setAiLoading(true);
     setAiError(null);
     setAiMatches([]);
@@ -162,13 +174,18 @@ const Search = ({ initialQuery = "" }) => {
     setAiRequested(true);
 
     try {
-      const { lat, lng } = await getUserLocation();
-      const body = {
-        name: query.trim(),
-        lat,
-        lng,
-        user_drugs: userDrugs,
-      };
+      const body = { name: query.trim(), user_drugs: userDrugs };
+
+      try {
+        const { lat, lng } = await getUserLocation();
+        body.lat = lat;
+        body.lng = lng;
+      } catch (geoError) {
+        console.warn(
+          "Location blocked or unavailable. AI search will continue without location."
+        );
+        // Do nothing — lat/lng are simply omitted
+      }
 
       const response = await fetch(
         "http://127.0.0.1:8000/api/v1/search/with-alternatives",
@@ -195,7 +212,7 @@ const Search = ({ initialQuery = "" }) => {
     }
   };
 
-  // Handle quantity change
+  // Quantity update
   const updateQuantity = (itemKey, change) => {
     setCartQuantities((prev) => ({
       ...prev,
@@ -203,11 +220,10 @@ const Search = ({ initialQuery = "" }) => {
     }));
   };
 
-  // Add to cart function
+  // Add to cart
   const addToCart = async (item, isAI = false) => {
     const itemKey = `${item.medicine_id || item.id}_${item.pharmacy_id}`;
     const quantity = cartQuantities[itemKey] || 1;
-
     setAddingToCart((prev) => ({ ...prev, [itemKey]: true }));
 
     try {
@@ -221,29 +237,23 @@ const Search = ({ initialQuery = "" }) => {
         body: JSON.stringify({
           medicine_id: item.medicine_id || item.id,
           pharmacy_id: item.pharmacy_id,
-          quantity: quantity,
+          quantity,
         }),
       });
 
       const responseData = await response.json();
-
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(responseData.message || "Failed to add to cart");
-      }
 
-      // Show success state
       setCartSuccess((prev) => ({ ...prev, [itemKey]: true }));
-      showNotification(
-        `${item.medicine_name} added to cart successfully!`,
-        "success"
-      );
+      setCartItemCount((prev) => prev + quantity);
+      window.dispatchEvent(new CustomEvent("cartUpdated"));
 
-      // Reset success state after 2 seconds
-      setTimeout(() => {
-        setCartSuccess((prev) => ({ ...prev, [itemKey]: false }));
-      }, 2000);
+      setTimeout(
+        () => setCartSuccess((prev) => ({ ...prev, [itemKey]: false })),
+        2000
+      );
     } catch (err) {
-      console.error("Error adding to cart:", err);
       showNotification(
         err.message || "Failed to add item to cart. Please try again.",
         "error"
@@ -252,6 +262,47 @@ const Search = ({ initialQuery = "" }) => {
       setAddingToCart((prev) => ({ ...prev, [itemKey]: false }));
     }
   };
+
+
+  // Render functions
+  const renderPharmacyGroup = (pharmacy) => (
+    <div
+      key={pharmacy.pharmacy_id}
+      className="col-span-full border border-gray-300 rounded-2xl p-5 mb-6 shadow-lg bg-gray-50 w-full"
+    >
+      <div className="mb-4">
+        <h3 className="text-2xl font-extrabold text-blue-900">
+          {pharmacy.pharmacy_name}
+        </h3>
+        <p className="text-base text-gray-800 mt-2">
+          <span className="font-semibold">Contact:</span>{" "}
+          {pharmacy.contact_info}
+        </p>
+        <p className="text-base text-gray-800 mt-1">
+          <span className="font-semibold">Location:</span>{" "}
+          {pharmacy.pharmacy_location}
+        </p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        {" "}
+        {pharmacy.medicines.map((med) =>
+          renderMedicineCard(
+            {
+              ...med,
+              pharmacy_id: pharmacy.pharmacy_id,
+              pharmacy_name: pharmacy.pharmacy_name,
+              pharmacy_location: pharmacy.pharmacy_location,
+              contact_info: pharmacy.contact_info,
+              price: med.price,
+              medicine_name: med.medicine_name,
+              quantity: med.quantity,
+            },
+            false
+          )
+        )}
+      </div>
+    </div>
+  );
 
   const renderMedicineCard = (item, isAI = false) => {
     const itemKey = `${item.medicine_id || item.id}_${item.pharmacy_id}`;
@@ -301,6 +352,33 @@ const Search = ({ initialQuery = "" }) => {
               </span>
             )}
           </div>
+        {/*className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-300 flex flex-col justify-between"
+        style={{ minHeight: 340 }}
+      >
+        <div className="flex items-center mb-4">
+          <MapPin className="w-5 h-5 text-indigo-500 mr-2" />
+          <span className="font-semibold text-indigo-700 text-base">
+            {item.pharmacy_name}
+          </span>
+          <span className="ml-2 px-2 py-1 text-xs bg-indigo-50 text-indigo-600 rounded-full border border-indigo-100">
+            {item.pharmacy_location}
+          </span>
+        </div>
+
+        <div className="border-b border-gray-200 mb-4"></div>
+
+        <div className="flex items-center mb-2">
+          <Pill
+            className={`mr-2 ${isAI ? "text-yellow-500" : "text-blue-500"}`}
+          />
+          <h3 className="font-bold text-lg text-gray-900">
+            {item.medicine_name}
+          </h3>
+          {isAI && (
+            <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full border border-yellow-200">
+              AI Alternative
+            </span>
+          )} */}
         </div>
 
         <div className="space-y-3 text-gray-700 mb-6 scrollbar-hide overflow-y-auto max-h-32">
@@ -337,6 +415,24 @@ const Search = ({ initialQuery = "" }) => {
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-bold text-gray-800">Quantity:</span>
             <div className="flex items-center space-x-3">
+
+            {/*<DollarSign className="w-4 h-4 mr-2 text-green-500" />
+            <span className="text-sm font-semibold text-green-700">
+              {item.price} EGP
+            </span>
+          </div>
+          <div className="flex items-center mt-1">
+            <span className="text-sm font-medium text-gray-700">
+              <span className="font-semibold text-green-700">In Stock:</span>{" "}
+              {item.quantity} available
+            </span>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-300 pt-4 mt-auto">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-700">Quantity:</span>
+            <div className="flex items-center space-x-2">*/}
               <button
               style={{ outline: "none", border: "none" }}
                 onClick={() => updateQuantity(itemKey, -1)}
@@ -362,6 +458,7 @@ const Search = ({ initialQuery = "" }) => {
             onClick={() => addToCart(item, isAI)}
             disabled={isAdding || showSuccess || item.quantity === 0}
             className={`w-full py-3 px-4 rounded-xl font-bold text-base transition-all duration-300 flex items-center justify-center space-x-2 transform hover:scale-105 ${
+
               showSuccess
                 ? "bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg"
                 : isAdding
@@ -415,6 +512,7 @@ const Search = ({ initialQuery = "" }) => {
         <p className="text-xs text-yellow-700 font-bold flex items-center gap-2">
           <AlertCircle className="w-4 h-4" />
           This medicine is not available in nearby pharmacies but might be a suitable alternative. Consult your doctor before use.
+
         </p>
       </div>
     </div>
@@ -434,6 +532,7 @@ const Search = ({ initialQuery = "" }) => {
       `}</style>
 
       {/* Notification */}
+
       {notification && (
         <Notification
           message={notification.message}
@@ -445,6 +544,7 @@ const Search = ({ initialQuery = "" }) => {
       {/* Header */}
       <header className="mb-12 text-center">
         <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 tracking-tight">
+
           Medicine Search
         </h1>
         <p className="text-gray-600 text-xl font-medium max-w-2xl mx-auto leading-relaxed">
@@ -457,6 +557,7 @@ const Search = ({ initialQuery = "" }) => {
         <div className="bg-blue-100 p-2 rounded-full">
           <SearchIcon className="text-blue-600 w-6 h-6" />
         </div>
+
         <input
           type="text"
           value={query}
@@ -467,14 +568,14 @@ const Search = ({ initialQuery = "" }) => {
         />
         <button
         style={{ outline: "none", border: "none" }}
-          onClick={() => handleSearch()}
+          onClick={() => handleSearch(1)}
           className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl font-bold text-base transform hover:scale-105"
+
         >
           Search
         </button>
       </div>
 
-      {/* Status */}
       {loading && (
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-3 text-gray-600 bg-white px-6 py-3 rounded-full shadow-lg">
@@ -494,8 +595,8 @@ const Search = ({ initialQuery = "" }) => {
         </div>
       )}
 
-      {/* Main Search Results */}
       {results.length > 0 && (
+{/*
         <div className="mb-16">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-800 mb-2 tracking-tight">
@@ -505,7 +606,40 @@ const Search = ({ initialQuery = "" }) => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 scrollbar-hide overflow-y-auto max-h-screen">
             {results.map((item) => renderMedicineCard(item, false))}
+*/}
+        <div className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Available in Pharmacies
+          </h2>
+
+          {/* Sort & Filter Component 
+          <MedicineSortFilter
+            medicines={results}
+            onSorted={setSortedMedicines}
+          />*/}
+
+          {/* Grid of Medicines */}
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {results.map((pharmacy) => renderPharmacyGroup(pharmacy))}
           </div>
+
+          {lastPage > 1 && (
+            <div className="flex justify-center mt-6 space-x-2">
+              {Array.from({ length: lastPage }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handleSearch(p)}
+                  className={`px-4 py-2 rounded-lg border ${
+                    p === page
+                      ? "bg-blue-600 text-white border-blue-700"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -544,7 +678,6 @@ const Search = ({ initialQuery = "" }) => {
         </div>
       )}
 
-      {/* AI Available Alternatives */}
       {aiMatches.length > 0 && (
         <div className="mb-16">
           <div className="text-center mb-8">
@@ -557,17 +690,18 @@ const Search = ({ initialQuery = "" }) => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 scrollbar-hide overflow-y-auto max-h-screen">
+
             {aiMatches.map((item) => renderMedicineCard(item, true))}
           </div>
         </div>
       )}
 
-      {/* AI Unavailable Alternatives */}
       {aiUnavailable.length > 0 && (
         <div className="mb-16">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-700 mb-2 tracking-tight flex items-center justify-center gap-2">
               <Clock className="w-8 h-8" />
+
               AI Suggested Alternatives (Not Available Nearby)
             </h2>
             <p className="text-gray-600 font-medium">
@@ -580,7 +714,6 @@ const Search = ({ initialQuery = "" }) => {
         </div>
       )}
 
-      {/* No Results Messages */}
       {aiRequested &&
         !aiLoading &&
         aiMatches.length === 0 &&
