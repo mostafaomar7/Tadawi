@@ -1,16 +1,15 @@
 // AllPharmacy.jsx
 import React, { useEffect, useState } from "react";
-import { 
-  FaStar, 
-  FaCheckCircle, 
-  FaPhoneAlt, 
-  FaMapMarkerAlt, 
-  FaEnvelope, 
-  FaClock, 
+import {
+  FaStar,
+  FaCheckCircle,
+  FaPhoneAlt,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaClock,
   FaSearch,
-  FaExclamationTriangle
+  FaExclamationTriangle,
 } from "react-icons/fa";
-
 // Skeleton Card Component (for loading state)
 const SkeletonCard = () => (
   <div className="bg-white rounded-xl shadow-md p-6 animate-pulse">
@@ -42,7 +41,7 @@ export default function AllPharmacy() {
 
     // Set the Authorization header
     const headers = {
-      "Authorization": `Bearer ${authToken}`,
+      Authorization: `Bearer ${authToken}`,
       "Content-Type": "application/json",
     };
 
@@ -52,12 +51,15 @@ export default function AllPharmacy() {
         return res.json();
       })
       .then((data) => {
-  setPharmacies(data.data.data || []);
-  setLoading(false);
-}) 
+        setPharmacies(data.data.data || []);
+        setLoading(false);
+        console.log(data.data.data);
+      })
       .catch((err) => {
         console.error("Error fetching pharmacies:", err);
-        setError("Unable to display pharmacies at this time. Please try again later.");
+        setError(
+          "Unable to display pharmacies at this time. Please try again later."
+        );
         setLoading(false);
       });
   }, []);
@@ -68,7 +70,9 @@ export default function AllPharmacy() {
 
   const renderContent = () => {
     if (loading) {
-      return Array.from({ length: 6 }).map((_, index) => <SkeletonCard key={index} />);
+      return Array.from({ length: 6 }).map((_, index) => (
+        <SkeletonCard key={index} />
+      ));
     }
 
     if (error) {
@@ -91,11 +95,14 @@ export default function AllPharmacy() {
     }
 
     return filteredPharmacies.map((pharmacy) => (
-      <div key={pharmacy.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+      <div
+        key={pharmacy.id}
+        className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+      >
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
             <h2 className="text-xl font-bold text-slate-800 leading-tight">
-              {pharmacy.location}
+              {pharmacy.user.name}
             </h2>
             {pharmacy.verified && (
               <div className="flex items-center bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
@@ -106,12 +113,18 @@ export default function AllPharmacy() {
           </div>
           <div className="space-y-2 text-slate-600">
             {(() => {
-              const contactInfo = pharmacy.contact_info?.split(",") || [];
-              const phone = contactInfo[0]?.replace("Phone:", "").trim() || "N/A";
-              const email = contactInfo[1]?.replace("Email:", "").trim() || "N/A";
-              const hours = contactInfo[2]?.replace("Working Hours:", "").trim() || "N/A";
+              const address = pharmacy.location || "N/A";
+              const phone = pharmacy.contact_info || "N/A";
+              const email = pharmacy.user?.email || "N/A";
+              // No "Working Hours" field in API, so either remove or show placeholder
+              const hours = "24Hrs";
+
               return (
                 <>
+                  <div className="flex items-center">
+                    <FaMapMarkerAlt className="mr-3 h-4 w-4 text-slate-400" />
+                    <span>{address}</span>
+                  </div>
                   <div className="flex items-center">
                     <FaPhoneAlt className="mr-3 h-4 w-4 text-slate-400" />
                     <span>{phone}</span>
@@ -131,7 +144,9 @@ export default function AllPharmacy() {
           <div className="border-t border-slate-200 mt-5 pt-4 flex justify-between items-center">
             <div className="flex items-center">
               <FaStar className="text-yellow-400 mr-1.5" />
-              <span className="text-slate-800 font-semibold">{pharmacy.rating}</span>
+              <span className="text-slate-800 font-semibold">
+                {pharmacy.rating}
+              </span>
               <span className="text-slate-500 text-sm ml-1">/ 5</span>
             </div>
           </div>
