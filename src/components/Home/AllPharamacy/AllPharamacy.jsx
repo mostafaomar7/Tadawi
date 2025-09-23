@@ -52,9 +52,9 @@ export default function AllPharmacy() {
         return res.json();
       })
       .then((data) => {
-        setPharmacies(data.data || []);
-        setLoading(false);
-      })
+  setPharmacies(data.data.data || []);
+  setLoading(false);
+}) 
       .catch((err) => {
         console.error("Error fetching pharmacies:", err);
         setError("Unable to display pharmacies at this time. Please try again later.");

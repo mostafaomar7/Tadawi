@@ -17,6 +17,7 @@ import AlternativeSearch from "./components/Home/AlternativeSearch/AlternativeSe
 
 import MainDashboard from "./dashboard/Dashboard";
 import DonationDetails from "./components/Home/Donations/DonationDetails";
+import Checkout from "./components/Home/Checkout/Checkout";
 
 function App() {
   const location = useLocation();
@@ -123,6 +124,14 @@ function App() {
               <ProtectedRoute>
                 <MainDashboard />
 
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout/:pharmacyId"
+            element={
+              <ProtectedRoute>
+                <Checkout />
               </ProtectedRoute>
             }
           />
