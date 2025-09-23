@@ -1,6 +1,10 @@
 body {
   margin: 0;
-  font-family: 'Cairo', sans-serif; /* ✨ طبق الخط هنا */
+  font-family: 'Cairo', sans-serif; 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+button{
+outline: "none";
+border: "none"
+} 

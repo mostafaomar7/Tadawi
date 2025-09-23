@@ -1,0 +1,17 @@
+/* Sort Section */
+select.form-select {
+  border: 1px solid black;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  font-family: serif;
+}
+
+select.form-select:hover {
+  border-color: #c43618;
+}
+
+/* Reset button */
+button.btn-outline-secondary {
+  font-size: 0.9rem;
+  padding: 0.3rem 0.6rem;
+}
