@@ -64,14 +64,17 @@ export default function AuthPage() {
 
   // ---------------- CHECK STORED ROLE ----------------
   useEffect(() => {
-    const role = localStorage.getItem("authRole");
-    const user = JSON.parse(localStorage.getItem("authUser"));
-    if (user && role) {
-      navigate("/"); // already logged in and role chosen
-    } else if (user && !role) {
-      setMode("choose-role"); // logged in but no role
+  const user = JSON.parse(localStorage.getItem("authUser"));
+  if (user) {
+    if (user.role) {
+      localStorage.setItem("authRole", user.role);
+      navigate("/");
+    } else {
+      setMode("choose-role");
     }
-  }, [navigate]);
+  }
+}, [navigate]);
+
 
   // ---------------- REGISTER ----------------
   const handleRegister = async (e) => {
@@ -174,12 +177,14 @@ export default function AuthPage() {
       if (res.ok) {
         localStorage.setItem('authToken', data.token); // حفظ الـ token
         localStorage.setItem('authUser', JSON.stringify(data.user));
-        if (data.role) {
-          localStorage.setItem("authRole", data.role);
-          navigate("/");
-        } else {
-          setMode("choose-role");
-        }
+        if (data.user.role) {
+  localStorage.setItem("authRole", data.user.role);
+  navigate("/");
+} else {
+  setMode("choose-role");
+}
+
+
       } else {
         setMessage("❌ " + (data.message || "Login failed"));
       }
@@ -269,10 +274,15 @@ export default function AuthPage() {
       }
 
       if (res.ok) {
-        localStorage.setItem("authRole", selectedRole); // save role permanently
-        setMessage("✅ Role updated successfully!");
-        navigate("/");
-      } else {
+  const user = JSON.parse(localStorage.getItem("authUser"));
+  const updatedUser = { ...user, role: selectedRole };
+  localStorage.setItem("authUser", JSON.stringify(updatedUser));
+  localStorage.setItem("authRole", selectedRole);
+
+  setMessage("✅ Role updated successfully!");
+  navigate("/");
+}
+else {
         console.error("Update role error:", { status: res.status, data });
         setMessage(`❌ ${res.status} - ${data.message || "Failed to update role"}`);
       }

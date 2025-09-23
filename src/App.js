@@ -19,6 +19,7 @@ import { CartProvider } from "./components/Home/PharmacySearch/CartContext";
 import Checkout from "./components/Home/Checkout/Checkout";
 import Orders from "./components/Home/Orders/Orders";
 import OrderDetails from "./components/Home/Orders/OrderDetails";
+import PharmacyManagement from "./components/PharmacyManagement";
 import { useLocation as useRouterLocation } from "react-router-dom";
 
 const SearchPage = () => {
@@ -150,6 +151,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <OrderDetails />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/pharmacy-management"
+              element={
+                <ProtectedRoute>
+                  <PharmacyManagement />
                 </ProtectedRoute>
               }
             />

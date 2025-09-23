@@ -57,6 +57,7 @@ export default function Navbar() {
           ? data
           : data.items || data.data || [];
         setCartItems(items);
+
         // Count unique {medicine_name, pharmacy_name} pairs
         const uniquePairs = new Set();
         Array.isArray(items) &&
@@ -121,30 +122,8 @@ export default function Navbar() {
   };
 
   // Delete single medicine
-  /*const deleteCartMedicine = async (medicineId) => {
-    try {
-      console.log("Deleting medicine with ID:", medicineId);
-      const response = await fetch(`${BASE_URL}auth/cart/${medicineId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete medicine");
-      }
-
-      await fetchCartItems();
-      window.dispatchEvent(new Event("cartUpdated"));
-    } catch (error) {
-      console.error("Error deleting medicine:", error);
-    }
-  };*/
   const deleteCartMedicine = async (itemId) => {
     try {
-      console.log("Deleting medicine with ID:", itemId);
       const response = await fetch(
         `http://localhost:8000/api/v1/auth/cart/${itemId}`,
         {
@@ -526,9 +505,7 @@ export default function Navbar() {
                                         outline: "none",
                                         border: "none",
                                       }}
-                                      onClick={() =>
-                                        deleteCartMedicine(item.id)
-                                      }
+                                      onClick={() => deleteCartMedicine(med.id)}
                                       className="ml-4 p-3 rounded-full bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
                                     >
                                       <Trash2 className="w-5 h-5" />
