@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { BASE_URL } from "../../../config";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { 
+import {
   ArrowLeft,
   Calendar,
   MapPin,
@@ -17,7 +18,7 @@ import {
   XCircle,
   AlertCircle,
   Home,
-  User
+  User,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -42,7 +43,7 @@ const OrderDetailsSkeleton = () => (
 
 // Error state component
 const ErrorState = ({ message, onBack }) => (
-  <motion.div 
+  <motion.div
     className="error-state"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -62,11 +63,11 @@ const ErrorState = ({ message, onBack }) => (
 const OrderDetails = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  
+
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   const token = localStorage.getItem("authToken");
 
   // Fetch order details
@@ -88,16 +89,13 @@ const OrderDetails = () => {
       setError(null);
 
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/api/v1/orders/${orderId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${BASE_URL}orders/${orderId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
 
         if (!response.ok) {
           if (response.status === 404) {
@@ -107,7 +105,7 @@ const OrderDetails = () => {
         }
 
         const data = await response.json();
-        
+
         if (data.success) {
           setOrder(data.data);
         } else {
@@ -132,43 +130,43 @@ const OrderDetails = () => {
         color: "warning",
         bgColor: "bg-yellow-50",
         textColor: "text-yellow-700",
-        borderColor: "border-yellow-200"
+        borderColor: "border-yellow-200",
       },
       processing: {
         icon: AlertCircle,
         color: "info",
         bgColor: "bg-blue-50",
         textColor: "text-blue-700",
-        borderColor: "border-blue-200"
+        borderColor: "border-blue-200",
       },
       confirmed: {
         icon: CheckCircle,
         color: "success",
         bgColor: "bg-green-50",
         textColor: "text-green-700",
-        borderColor: "border-green-200"
+        borderColor: "border-green-200",
       },
       shipped: {
         icon: Truck,
         color: "primary",
         bgColor: "bg-indigo-50",
         textColor: "text-indigo-700",
-        borderColor: "border-indigo-200"
+        borderColor: "border-indigo-200",
       },
       delivered: {
         icon: CheckCircle,
         color: "success",
         bgColor: "bg-green-50",
         textColor: "text-green-700",
-        borderColor: "border-green-200"
+        borderColor: "border-green-200",
       },
       cancelled: {
         icon: XCircle,
         color: "danger",
         bgColor: "bg-red-50",
         textColor: "text-red-700",
-        borderColor: "border-red-200"
-      }
+        borderColor: "border-red-200",
+      },
     };
 
     return configs[status] || configs.pending;
@@ -176,11 +174,14 @@ const OrderDetails = () => {
 
   // Copy order number to clipboard
   const copyOrderNumber = () => {
-    navigator.clipboard.writeText(order.order_number).then(() => {
-      console.log("Order number copied to clipboard");
-    }).catch(() => {
-      console.error("Failed to copy order number");
-    });
+    navigator.clipboard
+      .writeText(order.order_number)
+      .then(() => {
+        console.log("Order number copied to clipboard");
+      })
+      .catch(() => {
+        console.error("Failed to copy order number");
+      });
   };
 
   // Format date and time
@@ -190,12 +191,12 @@ const OrderDetails = () => {
       date: date.toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "long",
-        year: "numeric"
+        year: "numeric",
       }),
       time: date.toLocaleTimeString("en-GB", {
         hour: "2-digit",
-        minute: "2-digit"
-      })
+        minute: "2-digit",
+      }),
     };
   };
 
@@ -204,26 +205,27 @@ const OrderDetails = () => {
     const methods = {
       cash: "Cash on Delivery",
       card: "Credit/Debit Card",
-      paypal: "PayPal"
+      paypal: "PayPal",
     };
     return methods[method] || method;
   };
 
   // Download prescription file
   const downloadPrescription = (file) => {
-    const link = document.createElement('a');
-    link.href = `http://127.0.0.1:8000/storage/${file.file_path}`;
-    link.download = file.file_path.split('/').pop();
+    const link = document.createElement("a");
+    link.href = `https://tadawi-app-deploy-main-zwrtj5.laravel.cloud/storage/${file.file_path}`;
+    link.download = file.file_path.split("/").pop();
     link.click();
   };
 
   // Back to orders
   const handleBack = () => {
-    navigate('/orders');
+    navigate("/orders");
   };
 
   if (loading) return <OrderDetailsSkeleton />;
-  if (error || !order) return <ErrorState message={error} onBack={handleBack} />;
+  if (error || !order)
+    return <ErrorState message={error} onBack={handleBack} />;
 
   const statusConfig = getStatusConfig(order.status);
   const StatusIcon = statusConfig.icon;
@@ -232,7 +234,7 @@ const OrderDetails = () => {
   return (
     <div className="order-details-container">
       {/* Header */}
-      <motion.div 
+      <motion.div
         className="order-details-header"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -243,7 +245,7 @@ const OrderDetails = () => {
             Back to Orders
           </button>
         </div>
-        
+
         <div className="header-content">
           <div className="order-title-section">
             <h1>Order Details</h1>
@@ -259,7 +261,7 @@ const OrderDetails = () => {
               </button>
             </div>
           </div>
-          
+
           <div className={`status-badge large ${statusConfig.color}`}>
             <StatusIcon size={20} />
             <span>{order.status_display}</span>
@@ -269,11 +271,15 @@ const OrderDetails = () => {
         <div className="order-meta">
           <div className="meta-item">
             <Calendar size={16} />
-            <span>Placed on {orderDateTime.date} at {orderDateTime.time}</span>
+            <span>
+              Placed on {orderDateTime.date} at {orderDateTime.time}
+            </span>
           </div>
           <div className="meta-item">
             <Package size={16} />
-            <span>{order.total_items} item{order.total_items !== 1 ? 's' : ''}</span>
+            <span>
+              {order.total_items} item{order.total_items !== 1 ? "s" : ""}
+            </span>
           </div>
         </div>
       </motion.div>
@@ -281,7 +287,7 @@ const OrderDetails = () => {
       {/* Content */}
       <div className="order-details-content">
         {/* Order Items */}
-        <motion.section 
+        <motion.section
           className="details-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -304,7 +310,8 @@ const OrderDetails = () => {
                 <div className="item-pricing">
                   <div className="quantity">Qty: {item.quantity}</div>
                   <div className="unit-price">
-                    {parseFloat(item.price_at_time).toFixed(2)} {order.currency} each
+                    {parseFloat(item.price_at_time).toFixed(2)} {order.currency}{" "}
+                    each
                   </div>
                   <div className="line-total">
                     {parseFloat(item.line_total).toFixed(2)} {order.currency}
@@ -316,7 +323,7 @@ const OrderDetails = () => {
         </motion.section>
 
         {/* Pharmacy Information */}
-        <motion.section 
+        <motion.section
           className="details-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -349,7 +356,7 @@ const OrderDetails = () => {
         </motion.section>
 
         {/* Payment Information */}
-        <motion.section 
+        <motion.section
           className="details-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -385,7 +392,7 @@ const OrderDetails = () => {
         </motion.section>
 
         {/* Delivery Information */}
-        <motion.section 
+        <motion.section
           className="details-section"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -416,45 +423,46 @@ const OrderDetails = () => {
         </motion.section>
 
         {/* Prescription Files */}
-        {order.prescription_uploads && order.prescription_uploads.length > 0 && (
-          <motion.section 
-            className="details-section"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <h2 className="section-title">
-              <FileText size={20} />
-              Prescription Files
-            </h2>
-            <div className="prescription-files">
-              {order.prescription_uploads.map((file) => (
-                <div key={file.id} className="prescription-file">
-                  <div className="file-info">
-                    <FileText size={16} />
-                    <span className="file-name">
-                      {file.file_path.split('/').pop()}
-                    </span>
-                    <span className="file-date">
-                      Uploaded on {formatDateTime(file.created_at).date}
-                    </span>
+        {order.prescription_uploads &&
+          order.prescription_uploads.length > 0 && (
+            <motion.section
+              className="details-section"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <h2 className="section-title">
+                <FileText size={20} />
+                Prescription Files
+              </h2>
+              <div className="prescription-files">
+                {order.prescription_uploads.map((file) => (
+                  <div key={file.id} className="prescription-file">
+                    <div className="file-info">
+                      <FileText size={16} />
+                      <span className="file-name">
+                        {file.file_path.split("/").pop()}
+                      </span>
+                      <span className="file-date">
+                        Uploaded on {formatDateTime(file.created_at).date}
+                      </span>
+                    </div>
+                    <button
+                      className="download-btn"
+                      onClick={() => downloadPrescription(file)}
+                      title="Download prescription"
+                    >
+                      <Download size={16} />
+                      Download
+                    </button>
                   </div>
-                  <button
-                    className="download-btn"
-                    onClick={() => downloadPrescription(file)}
-                    title="Download prescription"
-                  >
-                    <Download size={16} />
-                    Download
-                  </button>
-                </div>
-              ))}
-            </div>
-          </motion.section>
-        )}
+                ))}
+              </div>
+            </motion.section>
+          )}
 
         {/* Order Summary */}
-        <motion.section 
+        <motion.section
           className="details-section order-summary"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -464,28 +472,36 @@ const OrderDetails = () => {
           <div className="summary-card">
             <div className="summary-row">
               <span>Subtotal</span>
-              <span>{(parseFloat(order.total_amount) * 0.9).toFixed(2)} {order.currency}</span>
+              <span>
+                {(parseFloat(order.total_amount) * 0.9).toFixed(2)}{" "}
+                {order.currency}
+              </span>
             </div>
             <div className="summary-row">
               <span>Tax & Fees</span>
-              <span>{(parseFloat(order.total_amount) * 0.1).toFixed(2)} {order.currency}</span>
+              <span>
+                {(parseFloat(order.total_amount) * 0.1).toFixed(2)}{" "}
+                {order.currency}
+              </span>
             </div>
             <div className="summary-row total">
               <span>Total Amount</span>
-              <span>{parseFloat(order.total_amount).toFixed(2)} {order.currency}</span>
+              <span>
+                {parseFloat(order.total_amount).toFixed(2)} {order.currency}
+              </span>
             </div>
           </div>
         </motion.section>
       </div>
 
       {/* Action Buttons */}
-      <motion.div 
+      <motion.div
         className="order-actions"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7 }}
       >
-        {order.status === 'pending' && (
+        {order.status === "pending" && (
           <button className="btn btn-danger">
             <XCircle size={16} />
             Cancel Order

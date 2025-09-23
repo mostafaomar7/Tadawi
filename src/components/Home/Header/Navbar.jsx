@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
+import { BASE_URL } from "../../../config";
 import { Link, useNavigate } from "react-router-dom";
 import {
   User,
@@ -43,7 +44,7 @@ export default function Navbar() {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:8000/api/v1/auth/cart", {
+      const response = await fetch(`${BASE_URL}auth/cart`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -86,7 +87,7 @@ export default function Navbar() {
   const clearPharmacyCart = async (pharmacyId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/auth/cart/clear?pharmacy_id=${pharmacyId}`,
+        `${BASE_URL}auth/cart/clear?pharmacy_id=${pharmacyId}`,
         {
           method: "DELETE",
           headers: {
@@ -120,11 +121,32 @@ export default function Navbar() {
   };
 
   // Delete single medicine
-  const deleteCartMedicine = async (medicineId) => {
+  /*const deleteCartMedicine = async (medicineId) => {
     try {
       console.log("Deleting medicine with ID:", medicineId);
+      const response = await fetch(`${BASE_URL}auth/cart/${medicineId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete medicine");
+      }
+
+      await fetchCartItems();
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (error) {
+      console.error("Error deleting medicine:", error);
+    }
+  };*/
+  const deleteCartMedicine = async (itemId) => {
+    try {
+      console.log("Deleting medicine with ID:", itemId);
       const response = await fetch(
-        `http://localhost:8000/api/v1/auth/cart/${medicineId}`,
+        `http://localhost:8000/api/v1/auth/cart/${itemId}`,
         {
           method: "DELETE",
           headers: {
@@ -504,7 +526,9 @@ export default function Navbar() {
                                         outline: "none",
                                         border: "none",
                                       }}
-                                      onClick={() => deleteCartMedicine(item)}
+                                      onClick={() =>
+                                        deleteCartMedicine(item.id)
+                                      }
                                       className="ml-4 p-3 rounded-full bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
                                     >
                                       <Trash2 className="w-5 h-5" />

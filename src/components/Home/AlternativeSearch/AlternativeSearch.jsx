@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { BASE_URL } from "../../../config";
 import {
   Search as SearchIcon,
   Pill,
@@ -60,18 +61,15 @@ const AlternativeSearch = () => {
         user_drugs: userDrugs,
       };
 
-      const response = await fetch(
-        "http://127.0.0.1:8000/api/v1/search/with-alternatives",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-          body: JSON.stringify(body),
-        }
-      );
+      const response = await fetch(`${BASE_URL}search/with-alternatives`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+        body: JSON.stringify(body),
+      });
 
       if (!response.ok) throw new Error("Failed to fetch AI alternatives");
 

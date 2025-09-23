@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { BASE_URL } from "../../../config";
+
 import { Link } from "react-router-dom";
-import { 
-  Filter, 
-  Package, 
+import {
+  Filter,
+  Package,
   ShoppingCart,
   AlertCircle,
   RefreshCw,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import OrderCard from "./OrderCard";
@@ -33,7 +35,7 @@ const OrderSkeleton = () => (
 
 // Empty State Component
 const EmptyState = ({ hasFilters, onClearFilters }) => (
-  <motion.div 
+  <motion.div
     className="empty-state"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -43,10 +45,9 @@ const EmptyState = ({ hasFilters, onClearFilters }) => (
     </div>
     <h3>No Orders Found</h3>
     <p>
-      {hasFilters 
+      {hasFilters
         ? "No orders match your current filters. Try adjusting your search criteria."
-        : "You haven't placed any orders yet. Start shopping to see your orders here!"
-      }
+        : "You haven't placed any orders yet. Start shopping to see your orders here!"}
     </p>
     {hasFilters && (
       <button className="btn-clear-filters" onClick={onClearFilters}>
@@ -63,7 +64,7 @@ const EmptyState = ({ hasFilters, onClearFilters }) => (
 
 // Error State Component
 const ErrorState = ({ message, onRetry }) => (
-  <motion.div 
+  <motion.div
     className="error-state"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -85,11 +86,11 @@ const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Filter States
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
-  
+
   // Pagination States
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -107,7 +108,7 @@ const Orders = () => {
     { value: "confirmed", label: "Confirmed", color: "success" },
     { value: "shipped", label: "Shipped", color: "primary" },
     { value: "delivered", label: "Delivered", color: "success" },
-    { value: "cancelled", label: "Cancelled", color: "danger" }
+    { value: "cancelled", label: "Cancelled", color: "danger" },
   ];
 
   // Payment method options
@@ -115,7 +116,7 @@ const Orders = () => {
     { value: "all", label: "All Methods" },
     { value: "cash", label: "Cash" },
     { value: "card", label: "Card" },
-    { value: "paypal", label: "PayPal" }
+    { value: "paypal", label: "PayPal" },
   ];
 
   // Fetch Orders Function
@@ -133,7 +134,7 @@ const Orders = () => {
       // Build query parameters
       const params = new URLSearchParams({
         page: page.toString(),
-        per_page: itemsPerPage.toString()
+        per_page: itemsPerPage.toString(),
       });
 
       // Add filters if they exist
@@ -144,26 +145,23 @@ const Orders = () => {
         params.append("payment_method", paymentFilter);
       }
 
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/orders?${params.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${BASE_URL}orders?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`Failed to fetch orders: ${response.status}`);
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         setOrders(data.data || []);
-        
+
         // Handle pagination if provided in response
         if (data.pagination) {
           setCurrentPage(data.pagination.current_page);
@@ -190,7 +188,6 @@ const Orders = () => {
     fetchOrders(currentPage);
   }, [currentPage, statusFilter, paymentFilter]);
 
-
   // Event Handlers
   const handleStatusFilter = (status) => {
     setStatusFilter(status);
@@ -205,7 +202,7 @@ const Orders = () => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -223,10 +220,10 @@ const Orders = () => {
 
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
+
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
@@ -256,7 +253,9 @@ const Orders = () => {
                 >
                   1
                 </button>
-                {startPage > 2 && <span className="pagination-ellipsis">...</span>}
+                {startPage > 2 && (
+                  <span className="pagination-ellipsis">...</span>
+                )}
               </>
             )}
 
@@ -274,7 +273,9 @@ const Orders = () => {
 
             {endPage < totalPages && (
               <>
-                {endPage < totalPages - 1 && <span className="pagination-ellipsis">...</span>}
+                {endPage < totalPages - 1 && (
+                  <span className="pagination-ellipsis">...</span>
+                )}
                 <button
                   className="pagination-number"
                   onClick={() => handlePageChange(totalPages)}
@@ -296,8 +297,9 @@ const Orders = () => {
         </div>
 
         <div className="pagination-info">
-          Showing {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)} to{" "}
-          {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} orders
+          Showing {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)}{" "}
+          to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}{" "}
+          orders
         </div>
       </div>
     );
@@ -306,7 +308,7 @@ const Orders = () => {
   return (
     <div className="orders-container">
       {/* Header */}
-      <motion.div 
+      <motion.div
         className="orders-header"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -323,7 +325,7 @@ const Orders = () => {
       </motion.div>
 
       {/* Filters Section */}
-      <motion.div 
+      <motion.div
         className="orders-filters"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -377,12 +379,14 @@ const Orders = () => {
             <span>Active filters: </span>
             {statusFilter !== "all" && (
               <span className="filter-tag">
-                Status: {statusOptions.find(s => s.value === statusFilter)?.label}
+                Status:{" "}
+                {statusOptions.find((s) => s.value === statusFilter)?.label}
               </span>
             )}
             {paymentFilter !== "all" && (
               <span className="filter-tag">
-                Payment: {paymentOptions.find(p => p.value === paymentFilter)?.label}
+                Payment:{" "}
+                {paymentOptions.find((p) => p.value === paymentFilter)?.label}
               </span>
             )}
             <button className="clear-filters-btn" onClick={clearFilters}>
@@ -393,7 +397,7 @@ const Orders = () => {
       </motion.div>
 
       {/* Content */}
-      <motion.div 
+      <motion.div
         className="orders-content"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -408,16 +412,16 @@ const Orders = () => {
         )}
 
         {error && !loading && (
-          <ErrorState 
-            message={error} 
-            onRetry={() => fetchOrders(currentPage)} 
+          <ErrorState
+            message={error}
+            onRetry={() => fetchOrders(currentPage)}
           />
         )}
 
         {!loading && !error && orders.length === 0 && (
-          <EmptyState 
-            hasFilters={hasActiveFilters} 
-            onClearFilters={clearFilters} 
+          <EmptyState
+            hasFilters={hasActiveFilters}
+            onClearFilters={clearFilters}
           />
         )}
 
