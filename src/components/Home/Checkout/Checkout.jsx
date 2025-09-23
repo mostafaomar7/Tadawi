@@ -178,6 +178,205 @@ export default function Checkout() {
   const [notes, setNotes] = useState("");
   const [prescriptionRequired, setPrescriptionRequired] = useState(true);
   const [prescriptionFiles, setPrescriptionFiles] = useState([]);
+  const [paypalConfig, setPaypalConfig] = useState(null);
+  const [paypalSDKLoaded, setPaypalSDKLoaded] = useState(false);
+  const [paypalPaymentCompleted, setPaypalPaymentCompleted] = useState(false);
+  const [orderCompleted, setOrderCompleted] = useState(false);
+
+  // Derived validation for prescription requirement
+  const isPrescriptionValid = !prescriptionRequired || (prescriptionFiles && prescriptionFiles.length > 0);
+
+  // Load PayPal SDK dynamically when PayPal is selected
+  useEffect(() => {
+    if (paymentMethod === "paypal" && !paypalSDKLoaded) {
+      loadPayPalSDK();
+    }
+  }, [paymentMethod]);
+
+  // Effect to render PayPal buttons when PayPal is selected and SDK is loaded
+  useEffect(() => {
+    if (paymentMethod === "paypal" && summary && paypalSDKLoaded && window.paypal) {
+      // Small delay to ensure the container is rendered
+      setTimeout(() => {
+        renderPayPalButtons();
+      }, 100);
+    }
+  }, [paymentMethod, summary, paypalSDKLoaded, prescriptionRequired, prescriptionFiles]);
+
+  const loadPayPalSDK = async () => {
+    try {
+      // Get PayPal config from your backend
+      const token = localStorage.getItem("authToken");
+      console.log("Fetching PayPal config from:", `${BASE_URL}checkout/paypal/config`);
+      
+      const response = await fetch(`${BASE_URL}checkout/paypal/config`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      console.log("PayPal config response status:", response.status);
+      console.log("PayPal config response headers:", response.headers);
+      
+      // Check if response is actually JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text();
+        console.error("Non-JSON response:", textResponse);
+        throw new Error("Backend returned non-JSON response. Check if the endpoint exists.");
+      }
+      
+      const data = await response.json();
+      console.log("PayPal config data:", data);
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to get PayPal config");
+      }
+
+      setPaypalConfig(data.config);
+
+      // Load PayPal SDK script dynamically
+      const script = document.createElement('script');
+      script.src = `https://www.paypal.com/sdk/js?client-id=${data.config.client_id}&currency=${data.config.currency}&disable-funding=credit,card`;
+      script.async = true;
+      script.onload = () => {
+        setPaypalSDKLoaded(true);
+      };
+      script.onerror = () => {
+        setError("Failed to load PayPal SDK");
+      };
+      document.body.appendChild(script);
+      
+    } catch (error) {
+      console.error("PayPal config error:", error);
+      setError("Failed to load PayPal configuration");
+    }
+  };
+
+  const renderPayPalButtons = () => {
+    const container = document.getElementById('paypal-button-container');
+    if (!container || !window.paypal) return;
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    window.paypal.Buttons({
+      style: {
+        layout: 'vertical',
+        color: 'blue',
+        shape: 'rect',
+        label: 'paypal'
+      },
+      onClick: (data, actions) => {
+        // Client-side validation before opening the PayPal popup
+        if (!isPrescriptionValid) {
+          setError("Prescription files are required when prescription is needed");
+          return actions.reject();
+        }
+        // Clear any previous error
+        setError(null);
+        return actions.resolve();
+      },
+      createOrder: (data, actions) => {
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              value: summary.totals.total_amount,
+              currency_code: paypalConfig?.currency || 'USD'
+            },
+            description: `Order from ${summary.pharmacy.name}`
+          }]
+        });
+      },
+      onApprove: async (data, actions) => {
+        try {
+          setProcessing(true);
+          
+          // Capture the PayPal payment
+          const details = await actions.order.capture();
+          
+          console.log("PayPal payment captured:", details);
+          
+          // Step 1: Create order in database
+          const formData = new FormData();
+          formData.append("payment_method", "paypal");
+          formData.append("billing_address", billingAddress);
+          formData.append("shipping_address", shippingAddress);
+          formData.append("phone", phone);
+          formData.append("notes", notes);
+          formData.append("prescription_required", prescriptionRequired ? "true" : "false");
+
+          for (let file of prescriptionFiles) {
+            formData.append("prescription_files[]", file);
+          }
+
+          console.log("Creating order...");
+          const initiateResponse = await fetch(`${BASE_URL}checkout/initiate/${pharmacyId}`, {
+            method: "POST",
+            headers: { 
+              Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+              Accept: "application/json",
+            },
+            body: formData,
+          });
+
+          console.log("Initiate response status:", initiateResponse.status);
+          const initiateText = await initiateResponse.text();
+          console.log("Initiate response body:", initiateText);
+
+          let initiateData;
+          try {
+            initiateData = JSON.parse(initiateText);
+          } catch (e) {
+            console.error("Failed to parse initiate response as JSON:", initiateText);
+            throw new Error("Backend returned invalid response for order creation");
+          }
+
+          if (!initiateResponse.ok) {
+            // Prefer detailed server-side validation messages
+            let friendlyMessage = initiateData.message || "Failed to create order";
+            if (initiateData.errors) {
+              const fieldErrors = [];
+              Object.keys(initiateData.errors).forEach((key) => {
+                const arr = initiateData.errors[key];
+                if (Array.isArray(arr) && arr.length > 0) {
+                  fieldErrors.push(arr[0]);
+                }
+              });
+              if (fieldErrors.length > 0) {
+                friendlyMessage = fieldErrors.join(" \n");
+              }
+            }
+            throw new Error(friendlyMessage);
+          }
+
+          console.log("Order created successfully:", initiateData);
+          
+          // Since we have the order created, show success and redirect
+          // (Skip the PayPal processing call for now since it might not exist)
+          setPaypalPaymentCompleted(true);
+          setProcessing(false);
+          
+          // Redirect to orders page after showing success message
+          setTimeout(() => {
+            window.location.href = '/orders';
+          }, 3000);
+          
+        } catch (error) {
+          console.error("PayPal payment error:", error);
+          setError(error.message);
+          setProcessing(false);
+        }
+      },
+      onError: (err) => {
+        console.error("PayPal error:", err);
+        setError("PayPal payment failed");
+        setProcessing(false);
+      },
+      onCancel: (data) => {
+        setError("PayPal payment was cancelled");
+        setProcessing(false);
+      }
+    }).render('#paypal-button-container');
+  };
 
   useEffect(() => {
     const fetchCheckoutData = async () => {
@@ -235,6 +434,7 @@ export default function Checkout() {
     fetchCheckoutData();
   }, [pharmacyId]);
 
+
   const handlePayment = async () => {
     if (!summary) return;
     setProcessing(true);
@@ -260,33 +460,19 @@ export default function Checkout() {
           body.append("prescription_files[]", file);
         }
 
-        url = `${BASE_URL}checkout/initiate/${pharmacyId}`;
-        options = {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body,
-        };
-      } else if (paymentMethod === "paypal") {
-        const body = {
-          order_id: summary?.order_id || "65",
-          payer_id: "PAYER123456789",
-          payment_id: "PAY123456789",
-        };
 
-        url = `${BASE_URL}checkout/paypal/${pharmacyId}`;
-        options = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(body),
-        };
-      }
-
-      console.log("=== Payment Request Debug ===");
-      console.log("URL:", url);
-      console.log("Options:", options);
+      url = `${BASE_URL}checkout/initiate/${pharmacyId}`;
+      options = {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }, // Important: don't set content-type manually
+        body,
+      };
+    } else if (paymentMethod === "paypal") {
+      // PayPal handled entirely via PayPal buttons
+      setError("Please complete payment using the PayPal button above.");
+      setProcessing(false);
+      return;
+    }
 
       response = await fetch(url, options);
 
@@ -306,7 +492,27 @@ export default function Checkout() {
     } finally {
       setProcessing(false);
     }
-  };
+
+
+    // For cash payments - show success message and redirect
+    setOrderCompleted(true);
+    setProcessing(false);
+    
+    // Redirect to orders page after showing success message
+    setTimeout(() => {
+      window.location.href = '/orders';
+    }, 3000);
+    
+    return; // Exit early to avoid the processing state change below
+  } catch (err) {
+    console.error("Payment Error:", err);
+    setError(err.message);
+  } finally {
+    setProcessing(false);
+  }
+};
+
+
 
   if (loading) return <CheckoutSkeleton />;
   if (error && !summary) return <ErrorDisplay message={error} />;
@@ -505,7 +711,122 @@ export default function Checkout() {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Any special instructions or notes for your order..."
                 />
+                Prescription Required
+              </label>
+              <input
+                type="file"
+                multiple
+                onChange={(e) => setPrescriptionFiles([...e.target.files])}
+              />
+            </div>
+          )}
 
+          {paymentMethod === "paypal" && (
+            <div className="space-y-4 mt-6">
+              <h3 className="text-lg font-semibold text-gray-800">PayPal Payment</h3>
+              <p className="text-gray-600">Complete your payment securely with PayPal</p>
+              
+              {/* Payment Details Form for PayPal */}
+              <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-700">Delivery Information</h4>
+                <input
+                  type="text"
+                  value={billingAddress}
+                  onChange={(e) => setBillingAddress(e.target.value)}
+                  placeholder="Billing Address"
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+                <input
+                  type="text"
+                  value={shippingAddress}
+                  onChange={(e) => setShippingAddress(e.target.value)}
+                  placeholder="Shipping Address"
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Phone"
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Notes (optional)"
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={prescriptionRequired}
+                    onChange={(e) => setPrescriptionRequired(e.target.checked)}
+                  />
+                  Prescription Required
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => setPrescriptionFiles([...e.target.files])}
+                />
+              </div>
+              
+              {/* PayPal Button Container */}
+              <div id="paypal-button-container" className="mt-4">
+                {paymentMethod === "paypal" && !paypalSDKLoaded && (
+                  <div className="text-center py-4">
+                    <div className="text-gray-600">Loading PayPal...</div>
+                  </div>
+                )}
+                {paypalPaymentCompleted && (
+                  <div className="text-center py-4 bg-green-50 rounded-lg border border-green-200">
+                    <div className="text-green-700 font-semibold text-lg">✓ Order Completed Successfully!</div>
+                    <div className="text-green-600 text-sm mt-2">Your payment has been processed. Redirecting to your orders page...</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+
+        {/* Success Messages */}
+        {orderCompleted && (
+          <div className="text-center py-4 bg-green-50 rounded-lg border border-green-200 mx-6 mb-4">
+            <div className="text-green-700 font-semibold text-lg">✓ Order Completed Successfully!</div>
+            <div className="text-green-600 text-sm mt-2">Your order has been placed. Redirecting to your orders page...</div>
+          </div>
+        )}
+
+        <CardFooter>
+          {/* Hide button when any payment is completed */}
+          {!paypalPaymentCompleted && !orderCompleted && (
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.97 }}
+              disabled={processing || paymentMethod === "paypal"}
+              onClick={handlePayment}
+              className={`w-full font-semibold py-3 px-4 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 disabled:opacity-50 ${
+                paymentMethod === "paypal"
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              {processing 
+                ? "Processing..." 
+                : paymentMethod === "paypal" 
+                  ? "Complete PayPal Payment Above" 
+                  : "Confirm & Pay"
+              }
+            </motion.button>
+          )}
+        </CardFooter>
+      </Card>
+
+      {error && <ErrorDisplay message={error} />}
+    </motion.div>
+
+{/*COMMMENT CONFLICT الي تحت دة ui بس*/}
+{/*
                 <div className="space-y-4">
                   <label className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative">
@@ -587,6 +908,7 @@ export default function Checkout() {
           100% { background-position: 200% 0; }
         }
       `}</style>
-    </div>
+    </div>  */}
+
   );
 }

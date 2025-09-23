@@ -235,10 +235,12 @@ export default function Navbar() {
               border-b border-gray-200/50 lg:border-0
             `}
           >
+
             <Link to="/donate" className="block px-4 py-2 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 no-underline text-base font-semibold transform hover:scale-105 hover:shadow-md">Donate</Link>
             <Link to="/Pharmacy" className="block px-4 py-2 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 no-underline text-base font-semibold transform hover:scale-105 hover:shadow-md">Pharmacy</Link>
             <Link to="/alternative-search" className="block px-4 py-2 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 no-underline text-base font-semibold transform hover:scale-105 hover:shadow-md">AI Alternative Search</Link>
             <Link to="/conflict-system" className="block px-4 py-2 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 no-underline text-base font-semibold transform hover:scale-105 hover:shadow-md">AI Conflict System</Link>
+
 
             {!token ? (
               <Link to="/auth" className="block bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl transition-all duration-200 no-underline font-bold text-base shadow-lg hover:shadow-xl transform hover:scale-105">Login</Link>
@@ -277,8 +279,19 @@ export default function Navbar() {
                         <User className="w-5 h-5 text-blue-500" />
                         View Profile
                       </Link>
+
+                      <Link
+                        to="/orders"
+                        className="flex items-center gap-3 px-4 py-3 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors no-underline border-t border-gray-100"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        My Orders
+                      </Link>
+                   
+
                       <button style={{ outline: "none", border: "none" }} onClick={handleLogout} className="flex items-center gap-3 w-full text-left px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50 transition-all duration-200 border-0 focus:outline-none transform hover:translate-x-1">
                         <X className="w-5 h-5" />
+
                         Logout
                       </button>
                     </div>

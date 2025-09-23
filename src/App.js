@@ -17,9 +17,11 @@ import MainDashboard from "./dashboard/Dashboard";
 import DonationDetails from "./components/Home/Donations/DonationDetails";
 import { CartProvider } from "./components/Home/PharmacySearch/CartContext";
 import Checkout from "./components/Home/Checkout/Checkout";
+import Orders from "./components/Home/Orders/Orders";
+import OrderDetails from "./components/Home/Orders/OrderDetails";
 import { useLocation as useRouterLocation } from "react-router-dom";
 
-// 🔹 Wrapper عشان يقرأ query من URL ويبعتها للـ Search
+
 const SearchPage = () => {
   const location = useRouterLocation();
   const params = new URLSearchParams(location.search);
@@ -31,6 +33,7 @@ const SearchPage = () => {
     </ProtectedRoute>
   );
 };
+
 
 function App() {
   const location = useLocation();
@@ -135,16 +138,37 @@ function App() {
               }
             />
 
-            <Route
-              path="/checkout/:pharmacyId"
-              element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </main>
+
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout/:pharmacyId"
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/:orderId"
+            element={
+              <ProtectedRoute>
+                <OrderDetails />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
+
 
         {!hideNavbar && <SecurityNotice />}
       </div>
