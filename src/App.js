@@ -46,110 +46,109 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<AuthPage />} />
 
-            <Route path="/add-dontation" element={<AddDonation />} />
+            {/* صفحات محمية */}
+            <Route
+              path="/add-dontation"
+              element={
+                <ProtectedRoute>
+                  <AddDonation />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Pharmacy"
+              element={
+                <ProtectedRoute>
+                  <AllPharamacy />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/donate"
+              element={
+                <ProtectedRoute>
+                  <DonateList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/Mydonate"
+              element={
+                <ProtectedRoute>
+                  <MyDonation />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* صفحات محمية */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Pharmacy"
-            element={
-              <ProtectedRoute>
-                <AllPharamacy />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/add-dontation"
-            element={
-              <ProtectedRoute>
-                <AddDonation />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/donate"
-            element={
-              <ProtectedRoute>
-                <DonateList />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/Mydonate"
-            element={
-              <ProtectedRoute>
-                <MyDonation />
-              </ProtectedRoute>
-            }
-          />
+            <Route path="/pharasearch" element={<SearchPage />} />
 
-          <Route path="/pharasearch" element={<SearchPage />} />
+            <Route
+              path="/alternative-search"
+              element={
+                <ProtectedRoute>
+                  <AlternativeSearch />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/alternative-search"
-            element={
-              <ProtectedRoute>
-                <AlternativeSearch />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/patient"
+              element={
+                <ProtectedRoute>
+                  <Patient />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/patient"
-            element={
-              <ProtectedRoute>
-                <Patient />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/conflict-system"
+              element={
+                <ProtectedRoute>
+                  <ConflictSystem />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/conflict-system"
-            element={
-              <ProtectedRoute>
-                <ConflictSystem />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/donations/:id"
+              element={
+                <ProtectedRoute>
+                  <DonationDetails />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/donations/:id"
-            element={
-              <ProtectedRoute>
-                <DonationDetails />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/dashboard/*"
+              element={
+                <ProtectedRoute>
+                  <MainDashboard />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/dashboard/*"
-            element={
-              <ProtectedRoute>
-                <MainDashboard />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/checkout/:pharmacyId"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </main>
 
-          <Route
-            path="/checkout/:pharmacyId"
-            element={
-              <ProtectedRoute>
-                <Checkout />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </main>
-
-      {!hideNavbar && <SecurityNotice />}
-    </div>
+        {!hideNavbar && <SecurityNotice />}
+      </div>
+    </CartProvider>
   );
 }
 
