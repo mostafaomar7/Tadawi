@@ -301,6 +301,13 @@ export default function Navbar() {
               AI Conflict System
             </Link>
 
+            <Link
+              to="/pharmacy-management"
+              className="block px-4 py-2 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 no-underline text-base font-semibold transform hover:scale-105 hover:shadow-md"
+            >
+              Pharmacy Management
+            </Link>
+
             {!token ? (
               <Link
                 to="/auth"
@@ -544,17 +551,6 @@ export default function Navbar() {
                       );
                     }
                   )}
-
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-t-4 border-blue-500 rounded-2xl p-6 shadow-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-2xl font-bold text-gray-900">
-                        Grand Total:
-                      </span>
-                      <span className="text-3xl font-bold text-blue-600">
-                        ${grandTotal.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
 
                   {Array.isArray(cartItems) && cartItems.length > 0 && (
                     <button
