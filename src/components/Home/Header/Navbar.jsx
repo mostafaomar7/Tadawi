@@ -110,10 +110,10 @@ export default function Navbar() {
   };
 
   // Delete single medicine
-  const deleteCartMedicine = async (medicineId) => {
+  const deleteCartMedicine = async (itemId) => {
     try {
       const response = await fetch(
-        `http://localhost:8000/api/v1/auth/cart/${medicineId}`,
+        `http://localhost:8000/api/v1/auth/cart/${itemId}`,
         {
           method: "DELETE",
           headers: {

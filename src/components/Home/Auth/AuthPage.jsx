@@ -1,12 +1,13 @@
 // src/features/auth/AuthPage.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./AuthPage.css";
 import { BASE_URL } from "../../../config";
 export default function AuthPage() {
   const [mode, setMode] = useState("login");
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Auth states
   const [fullName, setFullName] = useState("");
@@ -61,6 +62,41 @@ export default function AuthPage() {
       faLink.remove();
     };
   }, []);
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const token = query.get('token');
+    const error = query.get('error');
+    const errorMessage = query.get('message'); // إضافة استخراج رسالة الخطأ
+    if (token) {
+      localStorage.setItem('authToken', token);
+      // جلب بيانات المستخدم عشان تحدث localStorage وتتأكد من الـ token
+      fetch(`${BASE_URL}auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          localStorage.setItem('authUser', JSON.stringify(data.user));
+          localStorage.setItem('authRole', data.user.role); // حفظ الـ role الجديد لو تغير
+        }
+      })
+      .catch(err => console.error('Error fetching user:', err));
+  
+      const role = localStorage.getItem('authRole');
+      if (role) {
+        setMessage('✅ Google login successful!');
+        navigate('/dashboard'); // غيرت '/' لـ '/dashboard' لو عايز توجه لصفحة محمية
+      } else {
+        setMessage('✅ Google login successful! Please choose your role.');
+        setMode('choose-role');
+      }
+    } else if (error) {
+      setMessage(`❌ Google authentication failed: ${errorMessage || 'Please try again.'}`);      setMode('login');
+    }
+  }, [location, navigate]);
 
   // ---------------- CHECK STORED ROLE ----------------
   useEffect(() => {
@@ -312,6 +348,17 @@ export default function AuthPage() {
             <div className="text-center mt-2">
               <span className="text-danger fw-bold" style={{cursor:"pointer"}} onClick={()=>setMode("reset-request")}>Forgot Password?</span>
             </div>
+            {/* زر Google Login */}
+    <div className="text-center mt-3">
+      <button
+        type="button"
+        className="btn btn-outline-secondary w-100"
+        onClick={() => window.location.href = `${BASE_URL}auth/google/redirect`}
+        disabled={loading}
+      >
+        <i className="fab fa-google me-2"></i> Login with Google
+      </button>
+    </div>
           </form>
         )}
 

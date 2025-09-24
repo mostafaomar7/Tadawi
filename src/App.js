@@ -35,8 +35,7 @@ const SearchPage = () => {
 
 function App() {
   const location = useLocation();
-  const hideNavbar = location.pathname === "/auth";
-
+  const hideNavbar = location.pathname === "/auth" || location.pathname === "/auth/callback"; // إضافة /auth/callback
   return (
     <CartProvider>
       <div className="App relative min-h-screen">
@@ -46,6 +45,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth/callback" element={<AuthPage />} /> {/* Route جديد للـ callback */}
 
             {/* صفحات محمية */}
             <Route
