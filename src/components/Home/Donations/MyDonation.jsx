@@ -133,21 +133,6 @@ export default function MyDonation() {
                 </div>
               ))}
 
-              {donation.photos.length > 0 && (
-                <div className="mt-3">
-                  <h4 className="font-semibold text-slate-800 mb-1">Photos:</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {donation.photos.map((photo) => (
-                      <img
-                        key={photo.id}
-                        src={`${BASE_URL}/${photo.photo_path}`}
-                        alt="Donation"
-                        className="w-24 h-24 object-cover rounded"
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         ))}
