@@ -271,31 +271,46 @@ export default function Navbar() {
                   </button>
 
                   {profileOpen && (
-                    <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl ring-1 ring-gray-200 z-50 overflow-hidden transform transition-all duration-200 animate-in slide-in-from-top-2">
-                      <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
-                        <p className="text-lg font-bold text-gray-600">{user?.name || user?.email || "User"}</p>
-                      </div>
-                      <Link to="/profile" className="flex items-center gap-3 px-4 py-3 text-gray-700 text-base font-medium hover:bg-gray-50 transition-all duration-200 no-underline transform hover:translate-x-1" onClick={() => setProfileOpen(false)}>
-                        <User className="w-5 h-5 text-blue-500" />
-                        View Profile
-                      </Link>
+  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl ring-1 ring-gray-200 z-50 overflow-hidden transform transition-all duration-200 animate-in slide-in-from-top-2">
+    {/* Header */}
+    <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
+      <p className="text-lg font-semibold text-gray-700">
+        {user?.name || user?.email || "User"}
+      </p>
+    </div>
 
-                      <Link
-                        to="/orders"
-                        className="flex items-center gap-3 px-4 py-3 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors no-underline border-t border-gray-100"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        My Orders
-                      </Link>
-                   
+    {/* Profile */}
+    <Link
+      to="/profile"
+      className="flex items-center gap-3 px-4 py-3 text-gray-700 text-base font-medium hover:bg-gray-50 transition-all duration-200 no-underline"
+      onClick={() => setProfileOpen(false)}
+    >
+      <User className="w-5 h-5 text-blue-500" />
+      View Profile
+    </Link>
 
-                      <button style={{ outline: "none", border: "none" }} onClick={handleLogout} className="flex items-center gap-3 w-full text-left px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50 transition-all duration-200 border-0 focus:outline-none transform hover:translate-x-1">
-                        <X className="w-5 h-5" />
+    {/* Orders */}
+    <Link
+      to="/orders"
+      className="flex items-center gap-3 px-4 py-3 text-gray-700 text-base font-medium hover:bg-gray-50 transition-all duration-200 no-underline border-t border-gray-100"
+      onClick={() => setProfileOpen(false)}
+    >
+      <User className="w-5 h-5 text-indigo-500" />
+      My Orders
+    </Link>
 
-                        Logout
-                      </button>
-                    </div>
-                  )}
+    {/* Logout */}
+    <button
+    style={{ outline: "none", border: "none" }}
+      onClick={handleLogout}
+      className="flex items-center gap-3 w-full text-left px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50 transition-all duration-200 border-t border-gray-100"
+    >
+      <X className="w-5 h-5" />
+      Logout
+    </button>
+  </div>
+)}
+
                 </div>
               </div>
             )}
@@ -388,12 +403,12 @@ export default function Navbar() {
                     );
                   })}
 
-                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-t-4 border-blue-500 rounded-2xl p-6 shadow-lg">
+                  {/* <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-t-4 border-blue-500 rounded-2xl p-6 shadow-lg">
                     <div className="flex justify-between items-center">
                       <span className="text-2xl font-bold text-gray-900">Grand Total:</span>
                       <span className="text-3xl font-bold text-blue-600">${grandTotal.toFixed(2)}</span>
                     </div>
-                  </div>
+                  </div> */}
 
                   {Array.isArray(cartItems) && cartItems.length > 0 && (
                     <button onClick={clearAllCart} className="w-full text-white bg-red-600 hover:bg-red-700 py-3 font-bold transition-colors mb-2 border border-black border-opacity-10 rounded-xl">Clear All Cart</button>

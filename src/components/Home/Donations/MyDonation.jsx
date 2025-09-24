@@ -133,7 +133,7 @@ export default function MyDonation() {
                 </div>
               ))}
 
-              {donation.photos.length > 0 && (
+              {/* {donation.photos.length > 0 && (
                 <div className="mt-3">
                   <h4 className="font-semibold text-slate-800 mb-1">Photos:</h4>
                   <div className="flex flex-wrap gap-2">
@@ -147,7 +147,7 @@ export default function MyDonation() {
                     ))}
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         ))}
