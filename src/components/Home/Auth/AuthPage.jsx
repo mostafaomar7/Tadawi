@@ -113,29 +113,41 @@ export default function AuthPage() {
   };
 
   // ---------------- VERIFY OTP ----------------
-  const handleVerifyOtp = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    try {
-      const res = await fetch(`${BASE_URL}auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setMessage("✅ OTP Verified successfully, you can login now!");
-        setMode("login");
+  // ---------------- VERIFY OTP ----------------
+const handleVerifyOtp = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
+  try {
+    const res = await fetch(`${BASE_URL}auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      // ✅ احفظ التوكن واليوزر مباشرة
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("authUser", JSON.stringify(data.user));
+
+      if (data.user.role) {
+        localStorage.setItem("authRole", data.user.role);
+        navigate("/");
       } else {
-        setMessage("❌ " + (data.message || "OTP verification failed"));
+        setMode("choose-role");
       }
-    } catch (err) {
-      setMessage("❌ Error: " + err.message);
-    } finally {
-      setLoading(false);
+
+      setMessage("✅ OTP Verified & Logged in successfully!");
+    } else {
+      setMessage("❌ " + (data.message || "OTP verification failed"));
     }
-  };
+  } catch (err) {
+    setMessage("❌ Error: " + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // ---------------- RESEND OTP ----------------
   const handleResendOtp = async () => {
